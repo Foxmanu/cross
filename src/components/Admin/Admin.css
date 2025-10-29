@@ -586,12 +586,16 @@
 
   .search-input-combined {
     height: 38px !important;
-    font-size: 13px;
+    font-size: 15px;
+  }
+
+  .search-input-combined input {
+    font-size: 15px !important;
   }
 
   .filter-btn-combined {
     height: 38px !important;
-    font-size: 13px;
+    font-size: 15px;
     padding: 0 16px;
     min-width: 90px;
   }
@@ -649,7 +653,7 @@
   .door-control-card .ant-select-selector,
   .door-control-card .ant-btn {
     height: 46px !important;
-    font-size: 14px !important;
+    font-size: 15px !important;
   }
 
   .selectors,
@@ -704,17 +708,17 @@
 
   .search-input-combined {
     height: 36px !important;
-    font-size: 12px;
+    font-size: 14px;
     border-radius: 8px;
   }
 
   .search-input-combined input {
-    font-size: 12px !important;
+    font-size: 14px !important;
   }
 
   .filter-btn-combined {
     height: 36px !important;
-    font-size: 12px;
+    font-size: 14px;
     border-radius: 8px;
     font-weight: 600;
     padding: 0 12px;
@@ -738,12 +742,12 @@
   }
 
   .drawer-section-title {
-    font-size: 14px;
-    margin-bottom: 14px;
+    font-size: 18px;
+    margin-bottom: 16px;
   }
 
   .drawer-filter-label {
-    font-size: 12px;
+    font-size: 15px;
     margin-bottom: 6px;
   }
 
@@ -767,19 +771,19 @@
   }
 
   .gate-filter-label {
-    font-size: 14px;
+    font-size: 16px;
     margin-bottom: 4px;
   }
 
   .gate-filter-card .ant-select-selector {
-    height: 50px !important;
-    font-size: 15px !important;
+    height: 46px !important;
+    font-size: 16px !important;
     border-radius: 10px !important;
   }
 
   .gate-filter-card .ant-select-selection-item {
     line-height: 32px !important;
-    font-size: 15px !important;
+    font-size: 16px !important;
   }
 
   .selectors-card,
@@ -828,12 +832,12 @@
 
   .table-wrapper .ant-table-thead > tr > th {
     padding: 10px 8px;
-    font-size: 12px;
+    font-size: 13px;
   }
 
   .table-wrapper .ant-table-tbody > tr > td {
     padding: 10px 8px;
-    font-size: 12px;
+    font-size: 13px;
   }
 
   .app-content .ant-tabs-content-holder {
