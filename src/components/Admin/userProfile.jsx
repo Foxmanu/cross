@@ -164,40 +164,35 @@ const UserProfile = ({ token }) => {
 
   return (
     <>
-      <Card>
-        <div
-          style={{
-            paddingTop: 4,
-            textAlign: "center",
-            borderRadius: borderRadiusLG,
-          }}
-        >
-          <Date
-            fetchFromBackend={fetchFromBackend}
-            setDateRange={setDateRange}
-          />
-        </div>
+      <div
+        style={{
+          paddingTop: 4,
+          textAlign: "center",
+          borderRadius: borderRadiusLG,
+        }}
+      >
+        <Date fetchFromBackend={fetchFromBackend} setDateRange={setDateRange} />
+      </div>
 
-        <div
-          style={{
-            paddingTop: 16,
-            textAlign: "center",
-            borderRadius: borderRadiusLG,
-          }}
-        >
-          <SelectControls
-            value={activeLearningOption}
-            onChange={handleSelectChange}
-            options={gateOptions}
-            placeholder="Choose scope"
-          />
-        </div>
-
-        <Data
-          data={data}
-          onRefresh={() => fetchFromBackend(dateRange, activeLearningOption)}
+      <div
+        style={{
+          paddingTop: 16,
+          textAlign: "center",
+          borderRadius: borderRadiusLG,
+        }}
+      >
+        <SelectControls
+          value={activeLearningOption}
+          onChange={handleSelectChange}
+          options={gateOptions}
+          placeholder="Choose scope"
         />
-      </Card>
+      </div>
+
+      <Data
+        data={data}
+        onRefresh={() => fetchFromBackend(dateRange, activeLearningOption)}
+      />
     </>
   );
 };

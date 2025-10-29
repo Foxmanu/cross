@@ -8,9 +8,15 @@ import {
   DatePicker,
   Button,
   Input,
-  Tabs, // Add this
+  Tabs,
+  Drawer,
 } from "antd";
-import { LogoutOutlined, SearchOutlined } from "@ant-design/icons";
+import {
+  LogoutOutlined,
+  SearchOutlined,
+  FilterOutlined,
+  CloseOutlined,
+} from "@ant-design/icons";
 import "./Admin.css";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
@@ -45,6 +51,7 @@ const Admin = ({
   const [gateOptions, setGateOptions] = useState([]); // Add this after existing state declarations
   const [selectedGateFilter, setSelectedGateFilter] = useState(null);
   const [selectedGate, setSelectedGate] = useState(null); // <-- Add this line
+  const [filterDrawerOpen, setFilterDrawerOpen] = useState(false); // For sidebar filter drawer
 
   // Add new state for gates
 
@@ -443,69 +450,197 @@ const Admin = ({
           items={[
             {
               key: "1",
-              label: "Member Management",
+              label: window.innerWidth < 480 ? "Members" : "Member Management",
               children: (
                 <>
-                  <Card className="selectors-card">
-                    <div className="selectors">
-                      <label style={{ fontWeight: "500", marginTop: "2px" }}>
-                        Deapartment
-                      </label>
-                      <Select
-                        placeholder="Select Department"
-                        style={{ width: "100%" }}
-                        onChange={handleDeptChange}
-                        value={selectedDept}
-                      >
-                        {Object.keys(hierarchyData)?.map((dept) => (
-                          <Option key={dept} value={dept}>
-                            {dept}
-                          </Option>
-                        ))}
-                      </Select>
-                      <label>Team</label>
-                      <Select
-                        placeholder="Select Team"
-                        style={{ width: "100%" }}
-                        onChange={handleTeamChange}
-                        value={selectedTeam}
-                        disabled={!selectedDept}
-                      >
-                        {selectedDept &&
-                          Array.isArray(hierarchyData[selectedDept]) &&
-                          hierarchyData[selectedDept].map((team) => (
-                            <Option key={team} value={team}>
-                              {team}
-                            </Option>
-                          ))}
-                      </Select>
-                    </div>
-
-                    <div className="date-range-wrapper">
-                      <div className="date-picker-item">
-                        <label className="date-label">Start Date</label>
-                        <DatePicker
-                          style={{ width: "100%" }}
-                          value={startDate}
-                          onChange={handleStartDateChange}
-                          format="YYYY-MM-DD"
+                  {/* Search and Filter Card */}
+                  <Card className="search-filter-card">
+                    <div className="search-filter-content">
+                      <div className="search-section">
+                        <Input
+                          placeholder="Search by member name..."
+                          prefix={<SearchOutlined />}
+                          value={searchText}
+                          onChange={(e) => setSearchText(e.target.value)}
+                          size="large"
+                          allowClear
+                          className="search-input-combined"
                         />
                       </div>
-                      <div className="date-picker-item">
-                        <label className="date-label">End Date</label>
-                        <DatePicker
-                          style={{ width: "100%" }}
-                          value={endDate}
-                          onChange={handleEndDateChange}
-                          format="YYYY-MM-DD"
-                        />
-                      </div>
+                      <Button
+                        type="primary"
+                        icon={<FilterOutlined />}
+                        onClick={() => setFilterDrawerOpen(true)}
+                        className="filter-btn-combined"
+                        size="large"
+                      >
+                        Filters
+                      </Button>
                     </div>
+                    {(selectedDept !== "All" || selectedTeam !== "All") && (
+                      <div className="active-filters-tags">
+                        <span className="filter-badge">{selectedDept}</span>
+                        {selectedTeam && selectedTeam !== "All" && (
+                          <span className="filter-badge">{selectedTeam}</span>
+                        )}
+                      </div>
+                    )}
                   </Card>
 
+                  {/* Filter Sidebar Drawer */}
+                  <Drawer
+                    title={
+                      <div className="drawer-title">
+                        <FilterOutlined style={{ marginRight: 8 }} />
+                        <span>Filters</span>
+                      </div>
+                    }
+                    placement="left"
+                    onClose={() => setFilterDrawerOpen(false)}
+                    open={filterDrawerOpen}
+                    width={
+                      window.innerWidth < 480
+                        ? "90%"
+                        : window.innerWidth < 768
+                        ? "85%"
+                        : 400
+                    }
+                    className="filter-drawer"
+                    closeIcon={<CloseOutlined />}
+                  >
+                    <div className="drawer-filters-content">
+                      {/* Department & Team */}
+                      <div className="drawer-filter-section">
+                        <h4 className="drawer-section-title">Organization</h4>
+                        <div className="drawer-filter-item">
+                          <label className="drawer-filter-label">
+                            Department
+                          </label>
+                          <Select
+                            placeholder="Select Department"
+                            style={{ width: "100%" }}
+                            onChange={handleDeptChange}
+                            value={selectedDept}
+                          >
+                            {Object.keys(hierarchyData)?.map((dept) => (
+                              <Option key={dept} value={dept}>
+                                {dept}
+                              </Option>
+                            ))}
+                          </Select>
+                        </div>
+                        <div className="drawer-filter-item">
+                          <label className="drawer-filter-label">Team</label>
+                          <Select
+                            placeholder="Select Team"
+                            style={{ width: "100%" }}
+                            onChange={handleTeamChange}
+                            value={selectedTeam}
+                            disabled={!selectedDept}
+                          >
+                            {selectedDept &&
+                              Array.isArray(hierarchyData[selectedDept]) &&
+                              hierarchyData[selectedDept].map((team) => (
+                                <Option key={team} value={team}>
+                                  {team}
+                                </Option>
+                              ))}
+                          </Select>
+                        </div>
+                      </div>
+
+                      {/* Date Range */}
+                      <div className="drawer-filter-section">
+                        <h4 className="drawer-section-title">Date Range</h4>
+                        <div className="drawer-filter-item">
+                          <label className="drawer-filter-label">
+                            Start Date
+                          </label>
+                          <DatePicker
+                            style={{ width: "100%" }}
+                            value={startDate}
+                            onChange={handleStartDateChange}
+                            format="YYYY-MM-DD"
+                          />
+                        </div>
+                        <div className="drawer-filter-item">
+                          <label className="drawer-filter-label">
+                            End Date
+                          </label>
+                          <DatePicker
+                            style={{ width: "100%" }}
+                            value={endDate}
+                            onChange={handleEndDateChange}
+                            format="YYYY-MM-DD"
+                          />
+                        </div>
+                      </div>
+
+                      {/* Gate Filter */}
+                      <div className="drawer-filter-section">
+                        <h4 className="drawer-section-title">Gate</h4>
+                        <div className="drawer-filter-item">
+                          <label className="drawer-filter-label">
+                            Gate Filter
+                          </label>
+                          <Select
+                            placeholder="Filter by gate"
+                            style={{ width: "100%" }}
+                            value={selectedGate}
+                            onChange={(value) => {
+                              setSelectedGate(value);
+                              fetchMembers(
+                                selectedDept,
+                                selectedTeam,
+                                startDate,
+                                endDate,
+                                value
+                              );
+                            }}
+                            allowClear
+                          >
+                            {gateOptions.map((gate) => (
+                              <Option key={gate.value} value={gate.value}>
+                                {gate.label}
+                              </Option>
+                            ))}
+                          </Select>
+                        </div>
+                      </div>
+
+                      {/* Action Buttons */}
+                      <div className="drawer-actions">
+                        <Button
+                          type="primary"
+                          block
+                          size="large"
+                          onClick={() => setFilterDrawerOpen(false)}
+                        >
+                          Apply Filters
+                        </Button>
+                        <Button
+                          block
+                          size="large"
+                          onClick={() => {
+                            setSelectedDept("All");
+                            setSelectedTeam("All");
+                            setSelectedGate(null);
+                            setSearchText("");
+                            setStartDate(dayjs());
+                            setEndDate(dayjs());
+                          }}
+                          style={{ marginTop: 12 }}
+                        >
+                          Reset All
+                        </Button>
+                      </div>
+                    </div>
+                  </Drawer>
+
+                  {/* Door Control Section */}
                   <Card className="door-control-card">
                     <div className="selectors" style={{ marginBottom: 0 }}>
-                      <label>Gate</label>
+                      <label>Door</label>
                       <Select
                         placeholder="Select Gate"
                         style={{ flex: 1, minWidth: 200 }}
@@ -523,6 +658,7 @@ const Admin = ({
                         type="primary"
                         style={{ flex: 1, minWidth: 200 }}
                         onClick={handleSaveTime}
+                        className="unlock-btn"
                       >
                         Unlock
                       </Button>
@@ -530,45 +666,6 @@ const Admin = ({
                   </Card>
 
                   <div className="table-wrapper">
-                    <div
-                      style={{
-                        marginBottom: 16,
-                        display: "flex",
-                        alignItems: "center",
-                        gap: 8,
-                      }}
-                    >
-                      <Input
-                        placeholder="Search members"
-                        prefix={<SearchOutlined />}
-                        value={searchText}
-                        onChange={(e) => setSearchText(e.target.value)}
-                        style={{ maxWidth: 300 }}
-                        allowClear
-                      />
-                      <Select
-                        placeholder="Filter by gate"
-                        style={{ width: 200 }}
-                        value={selectedGate}
-                        onChange={(value) => {
-                          setSelectedGate(value);
-                          fetchMembers(
-                            selectedDept,
-                            selectedTeam,
-                            startDate,
-                            endDate,
-                            value
-                          );
-                        }}
-                        allowClear
-                      >
-                        {gateOptions.map((gate) => (
-                          <Option key={gate.value} value={gate.value}>
-                            {gate.label}
-                          </Option>
-                        ))}
-                      </Select>
-                    </div>
                     <Table
                       dataSource={filteredMembers}
                       columns={columns}
@@ -582,7 +679,7 @@ const Admin = ({
             },
             {
               key: "2",
-              label: "Settings",
+              label: window.innerWidth < 480 ? "Admin" : "Admin Management",
               children: <UserProfile token={token} />,
             },
           ]}
