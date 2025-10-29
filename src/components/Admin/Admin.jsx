@@ -62,7 +62,7 @@ const Admin = ({
     const fetchGateOptions = async () => {
       try {
         const resp = await axios.post(
-          "https://panchajanya.schmidvision.com/api/gates",
+          "https://backend.schmidvision.com/api/gates",
           {}
         );
         if (resp.status === 200 && resp.data && resp.data.success) {
@@ -101,7 +101,7 @@ const Admin = ({
     try {
       // POST with empty body and proper config (backend returns [hierarchyData])
       const response = await axios.post(
-        "https://panchajanya.schmidvision.com/api/get_departments",
+        "https://backend.schmidvision.com/api/get_departments",
         {}, // empty body
         {
           headers: {
@@ -169,7 +169,7 @@ const Admin = ({
   const fetchDoorMappings = async () => {
     try {
       const response = await axios.post(
-        "https://panchajanya.schmidvision.com/fastapi/door-access/admin/get-door-mappings",
+        "https://backend.schmidvision.com/fastapi/door-access/admin/get-door-mappings",
         {},
         {
           headers: {
@@ -201,7 +201,7 @@ const Admin = ({
 
     try {
       await axios.post(
-        "https://panchajanya.schmidvision.com/fastapi/door-access/admin/unlock-door",
+        "https://backend.schmidvision.com/fastapi/door-access/admin/unlock-door",
         {
           index: selectedDoor.index,
           door_name: selectedDoor.door_name,
@@ -293,7 +293,7 @@ const Admin = ({
 
     try {
       const response = await axios.post(
-        "https://panchajanya.schmidvision.com/api/get_department_team_members",
+        "https://backend.schmidvision.com/api/get_department_team_members",
         {
           department: deptToSend,
           team: teamToSend,
@@ -327,7 +327,7 @@ const Admin = ({
 
   // --- KEEP YOUR ROBUST LOGOUT LOGIC HERE ---
   const handleLogout = async () => {
-    await axios.post("https://panchajanya.schmidvision.com/api/logout_mobile", {
+    await axios.post("https://backend.schmidvision.com/api/logout_mobile", {
       username: token,
     });
     setToken(null);
@@ -344,7 +344,7 @@ const Admin = ({
   const handleToggleNotification = async (systemId, enabled) => {
     try {
       await axios.post(
-        "https://panchajanya.schmidvision.com/api/update_notification_status",
+        "https://backend.schmidvision.com/api/update_notification_status",
         { system_id: systemId, enabled },
         {
           headers: {
@@ -399,7 +399,7 @@ const Admin = ({
   const handleGateChange = async (systemId, gate) => {
     try {
       await axios.post(
-        "https://panchajanya.schmidvision.com/api/update_user_gate",
+        "https://backend.schmidvision.com/api/update_user_gate",
         { system_id: systemId, gate },
         {
           headers: {

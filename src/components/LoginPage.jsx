@@ -60,7 +60,7 @@ function LoginPage({ setToken, setLoginStatus, handleSubscribe, setRole }) {
         platform = "android";
       }
       const res = await axios.post(
-        "https://panchajanya.schmidvision.com/api/login_mobile",
+        "https://backend.schmidvision.com/api/login_mobile",
         {
           username: values.username,
           password: values.password,

@@ -68,7 +68,7 @@ export async function subscribeToPush(username) {
       token_type,
       "token_type"
     );
-    await axios.post("https://panchajanya.schmidvision.com/api/subscribe", {
+    await axios.post("https://backend.schmidvision.com/api/subscribe", {
       username,
       subscription: subscriptionToken,
       token_type,

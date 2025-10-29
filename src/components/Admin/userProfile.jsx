@@ -40,7 +40,7 @@ const UserProfile = ({ token }) => {
         gate: option || activeLearningOption,
       });
       const response = await axios.post(
-        "https://panchajanya.schmidvision.com/api/active_learning_mobile",
+        "https://backend.schmidvision.com/api/active_learning_mobile",
         { startDate, endDate, gate: option || activeLearningOption }, // send option
         {
           headers: {
@@ -56,7 +56,7 @@ const UserProfile = ({ token }) => {
       if (error.response && error.response.status === 403 && refreshToken) {
         try {
           const refreshResponse = await axios.post(
-            "https://panchajanya.schmidvision.com/api/check_reset_elgibility",
+            "https://backend.schmidvision.com/api/check_reset_elgibility",
             { username, refreshToken }
           );
 
@@ -104,7 +104,7 @@ const UserProfile = ({ token }) => {
     const fetchGateOptions = async () => {
       try {
         const resp = await axios.post(
-          "https://panchajanya.schmidvision.com/api/gates",
+          "https://backend.schmidvision.com/api/gates",
           {}
         );
         if (resp.status === 200 && resp.data && resp.data.success) {
