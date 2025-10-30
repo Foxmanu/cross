@@ -453,6 +453,34 @@ const Admin = ({
               label: window.innerWidth < 480 ? "Members" : "Member Management",
               children: (
                 <>
+                  {/* Door Control Section */}
+                  <Card className="door-control-card">
+                    <div className="selectors" style={{ marginBottom: 0 }}>
+                      <label>Door</label>
+                      <Select
+                        placeholder="Select Gate"
+                        style={{ flex: 1, minWidth: 200 }}
+                        value={selectedDoor?.door_name}
+                        onChange={handleDoorSelect}
+                      >
+                        {doorMappings.map((door) => (
+                          <Option key={door.door_name} value={door.door_name}>
+                            {door.door_name}
+                          </Option>
+                        ))}
+                      </Select>
+
+                      <Button
+                        type="primary"
+                        style={{ flex: 1, minWidth: 200 }}
+                        onClick={handleSaveTime}
+                        className="unlock-btn"
+                      >
+                        Unlock
+                      </Button>
+                    </div>{" "}
+                  </Card>
+
                   {/* Search and Filter Card */}
                   <Card className="search-filter-card">
                     <div className="search-filter-content">
@@ -637,41 +665,21 @@ const Admin = ({
                     </div>
                   </Drawer>
 
-                  {/* Door Control Section */}
-                  <Card className="door-control-card">
-                    <div className="selectors" style={{ marginBottom: 0 }}>
-                      <label>Door</label>
-                      <Select
-                        placeholder="Select Gate"
-                        style={{ flex: 1, minWidth: 200 }}
-                        value={selectedDoor?.door_name}
-                        onChange={handleDoorSelect}
-                      >
-                        {doorMappings.map((door) => (
-                          <Option key={door.door_name} value={door.door_name}>
-                            {door.door_name}
-                          </Option>
-                        ))}
-                      </Select>
-
-                      <Button
-                        type="primary"
-                        style={{ flex: 1, minWidth: 200 }}
-                        onClick={handleSaveTime}
-                        className="unlock-btn"
-                      >
-                        Unlock
-                      </Button>
-                    </div>{" "}
-                  </Card>
-
                   <div className="table-wrapper">
                     <Table
                       dataSource={filteredMembers}
                       columns={columns}
-                      pagination={false}
+                      pagination={{
+                        pageSize: 10,
+                        showSizeChanger: true,
+                        pageSizeOptions: ["10", "20", "50"],
+                        showQuickJumper: true,
+                        showTotal: (total, range) =>
+                          `${range[0]}-${range[1]} of ${total} items`,
+                      }}
+                      bordered={true}
+                      size="small"
                       scroll={{ x: true }}
-                      size="middle"
                     />
                   </div>
                 </>
