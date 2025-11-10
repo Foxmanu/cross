@@ -13,7 +13,6 @@ function LoginPage({ setToken, setLoginStatus, handleSubscribe, setRole }) {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(""); // Add this at the top with your other state
 
-  // Automatically clear error after 2 seconds
   useEffect(() => {
     if (error || success) {
       const timer = setTimeout(() => {
@@ -59,11 +58,16 @@ function LoginPage({ setToken, setLoginStatus, handleSubscribe, setRole }) {
       } else if (isAndroid) {
         platform = "android";
       }
+
+      // Trim spaces from username and password before sending
+      const username = values.username.trim();
+      const password = values.password;
+
       const res = await axios.post(
-        "https://backend.schmidvision.com/api/login_mobile",
+        "https:///backend.schmidvision.com/api/login_mobile",
         {
-          username: values.username,
-          password: values.password,
+          username,
+          password,
           platform,
         }
       );
@@ -77,7 +81,7 @@ function LoginPage({ setToken, setLoginStatus, handleSubscribe, setRole }) {
       localStorage.setItem("username", data.username);
 
       // Subscribe to push (wait for it to finish)
-      await handleSubscribe(values.username);
+      await handleSubscribe(username);
 
       // Now update state and navigate
       setToken(data.username);

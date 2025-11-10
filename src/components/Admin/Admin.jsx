@@ -456,7 +456,6 @@ const Admin = ({
                   {/* Door Control Section */}
                   <Card className="door-control-card">
                     <div className="selectors" style={{ marginBottom: 0 }}>
-                      <label>Door</label>
                       <Select
                         placeholder="Select Gate"
                         style={{ flex: 1, minWidth: 200 }}
@@ -625,7 +624,6 @@ const Admin = ({
                                 value
                               );
                             }}
-                            allowClear
                           >
                             {gateOptions.map((gate) => (
                               <Option key={gate.value} value={gate.value}>

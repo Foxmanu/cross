@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import dayjs from "dayjs"; // <-- added
 import Date from "../Date/Date";
 import Data from "../Data/Data";
-import SelectControls from "../Select";
+import SelectControls from "./Select";
 import "./HomePage.css";
 import { Layout, theme } from "antd"; // removed Button, Space
 import { LogoutOutlined } from "@ant-design/icons";
@@ -164,7 +164,7 @@ function HomePage({
       }
     };
     fetchGateOptions();
-  }, [token]);
+  }, []);
 
   useEffect(() => {
     if (gateOptions.length === 0) return;
@@ -193,7 +193,6 @@ function HomePage({
     ) {
       fetchFromBackend(dateRange, activeLearningOption);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeLearningOption, dateRange]);
 
   // handler called when SelectControls changes
@@ -209,7 +208,7 @@ function HomePage({
         <Header className="header">
           <div className="header-left">
             <img src="/user.png" alt="Avatar" className="header-logo" />
-            <span className="header-title">My App</span>
+            <span className="header-title">{token.toUpperCase()}</span>
           </div>
           <button className="logout-icon-btn" onClick={handleLogout}>
             <LogoutOutlined style={{ fontSize: "18px", color: "white" }} />
@@ -219,8 +218,8 @@ function HomePage({
         <Content style={{ marginTop: 64, overflow: "initial" }}>
           <div
             style={{
-              paddingTop: 4,
-              textAlign: "center",
+              // paddingTop: 4,
+
               background: " #f5f6fa",
               borderRadius: borderRadiusLG,
             }}
@@ -234,8 +233,8 @@ function HomePage({
           {/* pass value and handler so select sends option -> backend with dateRange */}
           <div
             style={{
-              paddingTop: 1,
               textAlign: "center",
+              paddingTop: 0,
               background: " #f5f6fa",
               borderRadius: borderRadiusLG,
             }}
@@ -251,7 +250,7 @@ function HomePage({
           <div
             style={{
               paddingTop: 1,
-              textAlign: "center",
+              // textAlign: "center",
               background: " #f5f6fa",
               borderRadius: borderRadiusLG,
             }}
@@ -264,8 +263,6 @@ function HomePage({
             />
           </div>
         </Content>
-
-        <Footer style={{ textAlign: "center" }} />
       </Layout>
     </Layout>
   );

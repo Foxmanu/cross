@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import dayjs from "dayjs";
 import Date from "../Date/Date";
 import Data from "../Data/Data";
-import SelectControls from "../Select";
+import SelectControls from "../Home/Select";
 import { Layout, theme, Card } from "antd";
 import axios from "axios";
 
@@ -176,7 +176,7 @@ const UserProfile = ({ token }) => {
 
       <div
         style={{
-          paddingTop: 16,
+          // paddingTop: 16,
           textAlign: "center",
           borderRadius: borderRadiusLG,
         }}

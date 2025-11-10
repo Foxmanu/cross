@@ -304,3 +304,11 @@
 .individual-record-card {
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
+
+/* Large screen adjustments */
+@media (min-width: 768px) {
+  .container1 {
+    max-width: none; /* Remove max-width on larger screens */
+    padding: 24px;
+  }
+}

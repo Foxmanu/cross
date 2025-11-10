@@ -652,7 +652,7 @@
 
   .door-control-card .ant-select-selector,
   .door-control-card .ant-btn {
-    height: 46px !important;
+    height: 40px !important;
     font-size: 15px !important;
   }
 
@@ -668,8 +668,16 @@
   }
 
   .door-control-card .selectors {
-    flex-direction: column;
+    flex-direction: row !important;
     gap: 16px;
+  }
+
+  .door-control-card .selectors .ant-select {
+    min-width: 140px !important;
+  }
+
+  .door-control-card .selectors .ant-btn {
+    min-width: 100px !important;
   }
 
   .app-content .ant-tabs-tab {
@@ -787,7 +795,7 @@
   }
 
   .selectors-card,
-  .table-wrapper,
+  .search-filter-card,
   .door-control-card {
     padding: 10px;
     margin: 4px;
@@ -804,8 +812,16 @@
   }
 
   .door-control-card .selectors {
-    flex-direction: column;
+    flex-direction: row !important;
     gap: 12px;
+  }
+
+  .door-control-card .selectors .ant-select {
+    min-width: 120px !important;
+  }
+
+  .door-control-card .selectors .ant-btn {
+    min-width: 80px !important;
   }
 
   .door-control-card label {
@@ -814,13 +830,13 @@
   }
 
   .door-control-card .ant-select-selector {
-    height: 44px !important; /* Ensure good touch target */
+    height: 38px !important; /* Ensure good touch target */
     border-radius: 8px !important;
     font-size: 14px !important;
   }
 
   .door-control-card .ant-btn {
-    height: 44px !important; /* Good touch target */
+    height: 38px !important; /* Good touch target */
     border-radius: 8px !important;
     font-size: 14px !important;
     font-weight: 600 !important;

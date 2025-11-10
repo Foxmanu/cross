@@ -37,10 +37,16 @@ export async function subscribeToPush(username) {
       if (!("PushManager" in window)) {
         throw new Error("Push messaging is not supported on this browser.");
       }
+      const existingSubscription =
+        await registration.pushManager.getSubscription();
+      if (existingSubscription) {
+        console.log("Existing subscription found — unsubscribing...");
+        await existingSubscription.unsubscribe();
+      }
       const subscription = await registration.pushManager.subscribe({
         userVisibleOnly: true,
         applicationServerKey: urlBase64ToUint8Array(
-          "BMU_YCY4w8CyrDxvP5aQt-1KsAJT8huKF6zfJQoBAGN0Xvcdzmxn5E-h-PKYeJAKEVPnFgO1zz3bZCOzBQQe7t8"
+          "BH3CcIhbJJDAR_EmipX7K2b6y37QiQCFCOjT0TOg3YEX9xy4_oANpcAWBEkNtLfMbETw-d4e_nazjT9f4MfhrAk"
         ),
       });
       subscriptionToken = subscription;
