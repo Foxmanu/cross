@@ -10,30 +10,36 @@ import {
   Input,
   Tabs,
   Drawer,
+  Space,
 } from "antd";
 import {
   LogoutOutlined,
   SearchOutlined,
   FilterOutlined,
   CloseOutlined,
+  BellOutlined,
+  DeleteOutlined,
 } from "@ant-design/icons";
 import "./Admin.css";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import dayjs from "dayjs";
 import UserProfile from "./userProfile";
+import { Badge, Popover, Avatar, Typography } from "antd";
 
 const { Header, Content } = Layout;
 const { Option } = Select;
+const { Text } = Typography;
 
-const Admin = ({
-  token,
-  status,
-  handleSubscribe,
-  setToken,
-  setLoginStatus,
-  setStatus,
-}) => {
+const Admin = (props) => {
+  const {
+    token,
+    status,
+    handleSubscribe,
+    setToken,
+    setLoginStatus,
+    setStatus,
+  } = props;
   const [hierarchyData, setHierarchyData] = useState({});
   const [selectedDept, setSelectedDept] = useState("All");
   const [selectedTeam, setSelectedTeam] = useState("All");
@@ -52,6 +58,9 @@ const Admin = ({
   const [selectedGateFilter, setSelectedGateFilter] = useState(null);
   const [selectedGate, setSelectedGate] = useState(null); // <-- Add this line
   const [filterDrawerOpen, setFilterDrawerOpen] = useState(false); // For sidebar filter drawer
+  const [apiMessage, setApiMessage] = useState(""); // Add this state
+  const [importantNotification, setImportantNotification] = useState(null);
+  const [notifVisible, setNotifVisible] = useState(false);
 
   // Add new state for gates
 
@@ -428,6 +437,114 @@ const Admin = ({
     }
   };
 
+  useEffect(() => {
+    // Load the notification from localStorage on mount
+    const stored = localStorage.getItem("importantNotification");
+    if (stored) {
+      setImportantNotification(JSON.parse(stored));
+    }
+    // Listen for changes (optional: for real-time updates)
+    const onStorage = (e) => {
+      if (e.key === "importantNotification") {
+        setImportantNotification(e.newValue ? JSON.parse(e.newValue) : null);
+      }
+    };
+    window.addEventListener("storage", onStorage);
+    return () => window.removeEventListener("storage", onStorage);
+  }, []);
+
+  // Notification popover content (modern, user-friendly, responsive)
+  const notificationContent = importantNotification ? (
+    <div
+      style={{
+        minWidth: 160,
+        maxWidth: 220,
+        padding: 10,
+        borderRadius: 10,
+        background: "#fff",
+        boxShadow: "0 8px 30px rgba(2,6,23,0.10)",
+        boxSizing: "border-box",
+        display: "flex",
+        flexDirection: "column",
+        gap: 8,
+      }}
+    >
+      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+        <Avatar
+          style={{
+            background: "#faad14",
+            color: "#fff",
+            fontWeight: 700,
+            fontSize: 18,
+          }}
+          size={32}
+        >
+          <BellOutlined />
+        </Avatar>
+        <div style={{ flex: 1 }}>
+          <div style={{ fontWeight: 600, fontSize: 14, color: "#222" }}>
+            {importantNotification.title}
+          </div>
+          <Text type="secondary" style={{ fontSize: 11 }}>
+            {importantNotification.timestamp
+              ? dayjs(importantNotification.timestamp).format(
+                  "YYYY-MM-DD HH:mm"
+                )
+              : ""}
+          </Text>
+        </div>
+      </div>
+      <div
+        style={{
+          fontSize: 13,
+          color: "#333",
+          margin: "6px 0 0 0",
+          wordBreak: "break-word",
+          whiteSpace: "pre-line",
+        }}
+      >
+        {importantNotification.body}
+      </div>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "flex-end",
+          gap: 8,
+          marginTop: 8,
+        }}
+      >
+        <Button size="small" onClick={() => setNotifVisible(false)}>
+          Close
+        </Button>
+        <Button
+          size="small"
+          danger
+          icon={<DeleteOutlined />}
+          onClick={() => {
+            setImportantNotification(null);
+            localStorage.removeItem("importantNotification");
+            setNotifVisible(false);
+          }}
+        >
+          Delete
+        </Button>
+      </div>
+    </div>
+  ) : (
+    <div
+      style={{
+        minWidth: 120,
+        maxWidth: 180,
+        color: "#888",
+        padding: 10,
+        textAlign: "center",
+        fontSize: 13,
+      }}
+    >
+      No notifications
+    </div>
+  );
+
   return (
     <Layout className="app-layout">
       <Header className="app-header">
@@ -435,12 +552,35 @@ const Admin = ({
           <img src="/user.png" alt="Avatar" />
           <span>Admin Dashboard</span>
         </div>
-        <Button
-          className="logout-icon-btn"
-          type="text"
-          icon={<LogoutOutlined style={{ fontSize: "20px", color: "white" }} />}
-          onClick={handleLogout}
-        />
+        <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+          {/* Notification Bell */}
+          <Popover
+            content={notificationContent}
+            trigger="click"
+            open={notifVisible}
+            onOpenChange={setNotifVisible}
+            placement="bottomRight"
+          >
+            <Badge dot={!!importantNotification}>
+              <BellOutlined
+                style={{
+                  fontSize: 22,
+                  color: importantNotification ? "#faad14" : "#fff",
+                  cursor: "pointer",
+                }}
+                aria-label="Notifications"
+              />
+            </Badge>
+          </Popover>
+          <Button
+            className="logout-icon-btn"
+            type="text"
+            icon={
+              <LogoutOutlined style={{ fontSize: "20px", color: "white" }} />
+            }
+            onClick={handleLogout}
+          />
+        </div>
       </Header>
 
       <Content className="app-content">

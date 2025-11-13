@@ -19,6 +19,7 @@
   left: 0;
   width: 100%; /* Full width */
   z-index: 1000; /* Above other content */
+  overflow: visible;
 }
 
 .header-left {
@@ -820,7 +821,7 @@
     min-width: 120px !important;
   }
 
-  .door-control-card .selectors .ant-btn {
+  .door-control_card .selectors .ant-btn {
     min-width: 80px !important;
   }
 

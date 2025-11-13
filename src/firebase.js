@@ -1,18 +1,18 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
-import { getMessaging, onMessage, } from "firebase/messaging";
+import { getMessaging, onMessage } from "firebase/messaging";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 // TODO: Add your own Firebase configuration here
 const firebaseConfig = {
-apiKey: "AIzaSyCJnkRJfxoFGnjbpzFweHcA88RFNZ6gLIU",
+  apiKey: "AIzaSyCJnkRJfxoFGnjbpzFweHcA88RFNZ6gLIU",
   authDomain: "fcm1-f49bf.firebaseapp.com",
   projectId: "fcm1-f49bf",
   storageBucket: "fcm1-f49bf.firebasestorage.app",
   messagingSenderId: "33514454153",
   appId: "1:33514454153:web:1b0b71240313e0f3c65a58",
-  measurementId: "G-L3VRK2SYWQ"
+  measurementId: "G-L3VRK2SYWQ",
 };
 
 // Initialize Firebase
@@ -23,19 +23,32 @@ export const messaging = getMessaging(app);
 onMessage(messaging, (payload) => {
   // Only show toast if the page is visible AND focused
   if (document.visibilityState !== "visible" || !document.hasFocus()) {
+    console.log("Foreground message received: ", payload);
     console.log("App not visible or not focused, skipping toast notification.");
     return;
   }
   const notificationTitle = payload.notification?.title || payload.data?.title;
   const notificationBody = payload.notification?.body || payload.data?.body;
 
+  // Save to localStorage if title is "important"
+  if (
+    notificationTitle &&
+    notificationTitle.toLowerCase() === "important" &&
+    notificationBody
+  ) {
+    const messageObj = {
+      title: notificationTitle,
+      body: notificationBody,
+      timestamp: Date.now(),
+    };
+    localStorage.setItem("importantNotification", JSON.stringify(messageObj));
+  }
+
   if (notificationTitle && notificationBody) {
     toast.info(`${notificationTitle}\n${notificationBody}`, {
       position: "top-right",
       autoClose: 5000,
-      closeButton: false
+      closeButton: false,
     });
   }
 });
-
-

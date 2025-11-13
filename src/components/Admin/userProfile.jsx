@@ -166,7 +166,7 @@ const UserProfile = ({ token }) => {
     <>
       <div
         style={{
-          paddingTop: 4,
+          // paddingTop: 4,
           textAlign: "center",
           borderRadius: borderRadiusLG,
         }}

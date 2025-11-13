@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { subscribeToPush } from "./main.jsx";
 import LoginPage from "./components/LoginPage.jsx";
@@ -98,6 +98,23 @@ function App() {
       setStatus(error.message);
     }
   };
+
+  useEffect(() => {
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.addEventListener("message", (event) => {
+        if (event.data && event.data.type === "IMPORTANT_NOTIFICATION") {
+          localStorage.setItem(
+            "importantNotification",
+            JSON.stringify({
+              title: event.data.title,
+              body: event.data.body,
+              timestamp: event.data.timestamp,
+            })
+          );
+        }
+      });
+    }
+  }, []);
 
   return (
     <>

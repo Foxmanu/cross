@@ -29,12 +29,29 @@ const messaging = getMessaging(app);
 // Handle FCM background messages (Android only)
 onBackgroundMessage(messaging, (payload) => {
   const notificationTitle = payload.data?.title || "Notification";
+  const notificationBody = payload.data?.body || "You have a new message.";
   const notificationOptions = {
-    body: payload.data?.body || "You have a new message.",
+    body: notificationBody,
     icon: "/pwa-192x192.png",
     badge: "/pwa-192x192.png",
   };
   self.registration.showNotification(notificationTitle, notificationOptions);
+
+  // If title is "important", send to all clients
+  if (notificationTitle && notificationTitle.toLowerCase() === "important") {
+    self.clients
+      .matchAll({ includeUncontrolled: true, type: "window" })
+      .then((clients) => {
+        for (const client of clients) {
+          client.postMessage({
+            type: "IMPORTANT_NOTIFICATION",
+            title: notificationTitle,
+            body: notificationBody,
+            timestamp: Date.now(),
+          });
+        }
+      });
+  }
 });
 
 // (Optional) Handle notification click
