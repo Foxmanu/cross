@@ -3,6 +3,7 @@ import axios from "axios";
 import { Form, Input, Button, Typography, Alert } from "antd"; // <-- import Alert
 import { UserOutlined, LockOutlined, BellOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
+import { getApiEndpoint } from "../utils/apiConfig";
 import "./LoginPage.css";
 
 const { Title, Text } = Typography;
@@ -11,7 +12,8 @@ function LoginPage({ setToken, setLoginStatus, handleSubscribe, setRole }) {
   const [loading, setLoading] = useState(false);
   const [permissionStatus, setPermissionStatus] = useState("default");
   const [error, setError] = useState("");
-  const [success, setSuccess] = useState(""); // Add this at the top with your other state
+  const [success, setSuccess] = useState("");
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (error || success) {
@@ -47,7 +49,7 @@ function LoginPage({ setToken, setLoginStatus, handleSubscribe, setRole }) {
       return;
     }
     setLoading(true);
-    setError(""); // clear previous error
+    setError("");
     try {
       const isIOS =
         /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
@@ -59,18 +61,28 @@ function LoginPage({ setToken, setLoginStatus, handleSubscribe, setRole }) {
         platform = "android";
       }
 
-      // Trim spaces from username and password before sending
       const username = values.username.trim();
       const password = values.password;
+      // Sanitize organization name: lowercase, replace spaces with underscores
+      const organizationName = values.organizationName
+        ?.trim()
+        .toLowerCase()
+        .replace(/\s+/g, "_");
+
+      // Store organization name in localStorage for API calls
+      if (organizationName) {
+        localStorage.setItem("organizationName", organizationName);
+      }
 
       const res = await axios.post(
-        "https:///backend.schmidvision.com/api/login_mobile",
+        getApiEndpoint("/login_mobile"),
         {
           username,
           password,
           platform,
         }
       );
+      console.log("Login response:", res);
       const data = res.data;
 
       // Store tokens and user info in localStorage BEFORE subscribing
@@ -141,6 +153,19 @@ function LoginPage({ setToken, setLoginStatus, handleSubscribe, setRole }) {
           requiredMark={false}
           className="form-container"
         >
+          <Form.Item
+            label="Organization Name"
+            name="organizationName"
+            rules={[
+              { required: true, message: "Please enter your organization name" },
+            ]}
+          >
+            <Input
+              placeholder="e.g., acme, mycompany"
+              autoCapitalize="none"
+              size="large"
+            />
+          </Form.Item>
           <Form.Item
             label="Username"
             name="username"

@@ -17,30 +17,67 @@
 
 .card {
   flex: 1;
-  background-color: #f9f9f9;
-  border-radius: 12px;
-  padding: 12px;
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+  border-radius: 16px;
+  padding: 16px;
   text-align: center;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08), 0 2px 4px rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #4f6ef7, #6366f1, #8b5cf6);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12), 0 4px 8px rgba(0, 0, 0, 0.06);
+}
+
+.card:hover::before {
+  opacity: 1;
 }
 
 .card-label {
-  font-size: 14px;
-  color: #666;
-  margin-bottom: 4px;
-}
-
-.card-value {
-  font-size: 22px;
+  font-size: 11px;
+  color: #6b7280;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
   font-weight: 600;
 }
 
+.card-value {
+  font-size: 32px;
+  font-weight: 700;
+  line-height: 1.2;
+  background: linear-gradient(135deg, currentColor 0%, currentColor 100%);
+  -webkit-background-clip: text;
+}
+
 .blue-text {
-  color: #007bff;
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .green-text {
-  color: #28a745;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 /* Tab buttons */
@@ -100,9 +137,17 @@
 
 .daily-record-item {
   margin-bottom: 16px;
-  background-color: #ffffff;
-  padding: 12px;
-  border-radius: 10px;
+  background: linear-gradient(135deg, #ffffff 0%, #fafbfc 100%);
+  padding: 14px;
+  border-radius: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06), 0 1px 3px rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(0, 0, 0, 0.04);
+  transition: all 0.2s ease;
+}
+
+.daily-record-item:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1), 0 2px 6px rgba(0, 0, 0, 0.06);
+  transform: translateY(-1px);
 }
 
 .daily-record-header {
@@ -129,12 +174,18 @@
 }
 
 .individual-record-card {
-  background-color: #f7f7fa;
-  border-radius: 18px;
-  padding: 8px; /* was 14px */
+  background: linear-gradient(135deg, #f8f9fa 0%, #f3f4f6 100%);
+  border-radius: 14px;
+  padding: 10px;
   margin-top: 8px;
-  box-shadow: 0 2px 8px rgba(79, 110, 247, 0.08);
-  transition: box-shadow 0.2s;
+  box-shadow: 0 2px 6px rgba(79, 110, 247, 0.08), 0 1px 3px rgba(0, 0, 0, 0.04);
+  transition: all 0.2s ease;
+  border: 1px solid rgba(79, 110, 247, 0.08);
+}
+
+.individual-record-card:hover {
+  box-shadow: 0 4px 10px rgba(79, 110, 247, 0.15), 0 2px 5px rgba(0, 0, 0, 0.06);
+  transform: translateX(2px);
 }
 
 .record-detail {
@@ -156,21 +207,25 @@
 .detail-value {
   font-size: 16px;
   font-weight: 600;
-  color: #000000; /* Solid black for better contrast */
+  color: #000000;
+  /* Solid black for better contrast */
   letter-spacing: 0.5px;
 }
 
 /* Add specific colors for entry and exit values */
 .entry-cell .detail-value {
-  color: #1a237e; /* Dark blue for entry time */
+  color: #1a237e;
+  /* Dark blue for entry time */
 }
 
 .exit-cell .detail-value {
-  color: #000000; /* Dark green for exit time */
+  color: #000000;
+  /* Dark green for exit time */
 }
 
 .duration-cell .detail-value {
-  color: #3f51b5; /* Indigo for duration */
+  color: #3f51b5;
+  /* Indigo for duration */
 }
 
 /* No data styling */
@@ -215,7 +270,8 @@
 /* Update record row and cell styling */
 .record-row {
   display: flex;
-  flex-direction: row; /* Keep it as row */
+  flex-direction: row;
+  /* Keep it as row */
   justify-content: space-between;
   gap: 8px;
   margin: 4px 0;
@@ -225,17 +281,26 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  padding: 8px 6px;
-  border-radius: 8px;
-  background-color: #e6e8fa;
+  padding: 10px 8px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #eef2ff 0%, #e0e7ff 100%);
   min-width: 0;
+  border: 1px solid rgba(99, 102, 241, 0.1);
+  transition: all 0.2s ease;
+}
+
+.record-cell:hover {
+  background: linear-gradient(135deg, #e0e7ff 0%, #dbeafe 100%);
+  transform: scale(1.02);
 }
 
 /* Mobile optimizations - keep row layout but adjust sizes */
 @media (max-width: 480px) {
   .record-row {
-    flex-direction: row; /* Ensure it stays as row */
-    gap: 4px; /* Reduce gap for mobile */
+    flex-direction: row;
+    /* Ensure it stays as row */
+    gap: 4px;
+    /* Reduce gap for mobile */
   }
 
   .record-cell {
@@ -308,7 +373,8 @@
 /* Large screen adjustments */
 @media (min-width: 768px) {
   .container1 {
-    max-width: none; /* Remove max-width on larger screens */
+    max-width: none;
+    /* Remove max-width on larger screens */
     padding: 24px;
   }
 }

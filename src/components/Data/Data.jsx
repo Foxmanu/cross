@@ -102,17 +102,15 @@ const Data = ({ data, onRefresh, onOptionChange }) => {
       <div className="tab-container">
         <div className="tab-buttons-wrapper">
           <button
-            className={`tab-button ${
-              activeTab === "events" ? "active-tab" : ""
-            }`}
+            className={`tab-button ${activeTab === "events" ? "active-tab" : ""
+              }`}
             onClick={() => setActiveTab("events")}
           >
             Events
           </button>
           <button
-            className={`tab-button ${
-              activeTab === "insights" ? "active-tab" : ""
-            }`}
+            className={`tab-button ${activeTab === "insights" ? "active-tab" : ""
+              }`}
             onClick={() => setActiveTab("insights")}
           >
             Insights
@@ -156,32 +154,32 @@ const Data = ({ data, onRefresh, onOptionChange }) => {
                             "day records (reverse)",
                             day.records.slice().reverse()
                           ),
-                          (
-                            <span className="daily-total-duration">
-                              Total:{" "}
-                              {(() => {
-                                let dayMinutes = 0;
-                                day.records.forEach((record) => {
-                                  if (record.entry && record.exit) {
-                                    const entry = dayjs(
-                                      `2025-01-01T${record.entry}`
-                                    );
-                                    const exit = dayjs(
-                                      `2025-01-01T${record.exit}`
-                                    );
-                                    const diff = exit.diff(entry, "minute");
-                                    if (!isNaN(diff) && diff >= 0) {
-                                      dayMinutes += diff;
+                            (
+                              <span className="daily-total-duration">
+                                Total:{" "}
+                                {(() => {
+                                  let dayMinutes = 0;
+                                  day.records.forEach((record) => {
+                                    if (record.entry && record.exit) {
+                                      const entry = dayjs(
+                                        `2025-01-01T${record.entry}`
+                                      );
+                                      const exit = dayjs(
+                                        `2025-01-01T${record.exit}`
+                                      );
+                                      const diff = exit.diff(entry, "minute");
+                                      if (!isNaN(diff) && diff >= 0) {
+                                        dayMinutes += diff;
+                                      }
                                     }
-                                  }
-                                });
+                                  });
 
-                                const dayHours = Math.floor(dayMinutes / 60);
-                                const dayRemainingMinutes = dayMinutes % 60;
-                                return `${dayHours}h ${dayRemainingMinutes}m`;
-                              })()}
-                            </span>
-                          ))}
+                                  const dayHours = Math.floor(dayMinutes / 60);
+                                  const dayRemainingMinutes = dayMinutes % 60;
+                                  return `${dayHours}h ${dayRemainingMinutes}m`;
+                                })()}
+                              </span>
+                            ))}
                       </div>
                       {Array.isArray(day.records) && day.records.length > 0 ? (
                         <ul className="individual-record-list">

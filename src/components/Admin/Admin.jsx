@@ -11,6 +11,8 @@ import {
   Tabs,
   Drawer,
   Space,
+  Popover,
+  Alert,
 } from "antd";
 import {
   LogoutOutlined,
@@ -19,17 +21,19 @@ import {
   CloseOutlined,
   BellOutlined,
   DeleteOutlined,
+  InfoCircleOutlined,
 } from "@ant-design/icons";
 import "./Admin.css";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import dayjs from "dayjs";
 import UserProfile from "./userProfile";
-import { Badge, Popover, Avatar, Typography } from "antd";
-
+import Authorization from "./Authorization";
+import Flag from "./Flag";
+import { getApiEndpoint } from "../../utils/apiConfig";
 const { Header, Content } = Layout;
 const { Option } = Select;
-const { Text } = Typography;
+
 
 const Admin = (props) => {
   const {
@@ -58,11 +62,6 @@ const Admin = (props) => {
   const [selectedGateFilter, setSelectedGateFilter] = useState(null);
   const [selectedGate, setSelectedGate] = useState(null); // <-- Add this line
   const [filterDrawerOpen, setFilterDrawerOpen] = useState(false); // For sidebar filter drawer
-  const [apiMessage, setApiMessage] = useState(""); // Add this state
-  const [importantNotification, setImportantNotification] = useState(null);
-  const [notifVisible, setNotifVisible] = useState(false);
-
-  // Add new state for gates
 
   const navigate = useNavigate();
 
@@ -78,7 +77,7 @@ const Admin = (props) => {
     const fetchGateOptions = async () => {
       try {
         const resp = await axios.post(
-          "https://backend.schmidvision.com/api/gates",
+          getApiEndpoint("/api/gates"),
           {}
         );
         if (resp.status === 200 && resp.data && resp.data.success) {
@@ -117,7 +116,7 @@ const Admin = (props) => {
     try {
       // POST with empty body and proper config (backend returns [hierarchyData])
       const response = await axios.post(
-        "https://backend.schmidvision.com/api/get_departments",
+        getApiEndpoint("/api/get_departments"),
         {}, // empty body
         {
           headers: {
@@ -185,7 +184,7 @@ const Admin = (props) => {
   const fetchDoorMappings = async () => {
     try {
       const response = await axios.post(
-        "https://backend.schmidvision.com/fastapi/door-access/admin/get-door-mappings",
+        getApiEndpoint("/fastapi/door-access/admin/get-door-mappings"),
         {},
         {
           headers: {
@@ -217,7 +216,7 @@ const Admin = (props) => {
 
     try {
       await axios.post(
-        "https://backend.schmidvision.com/fastapi/door-access/admin/unlock-door",
+        getApiEndpoint("/fastapi/door-access/admin/unlock-door"),
         {
           index: selectedDoor.index,
           door_name: selectedDoor.door_name,
@@ -309,7 +308,7 @@ const Admin = (props) => {
 
     try {
       const response = await axios.post(
-        "https://backend.schmidvision.com/api/get_department_team_members",
+        getApiEndpoint("/api/get_department_team_members"),
         {
           department: deptToSend,
           team: teamToSend,
@@ -343,7 +342,7 @@ const Admin = (props) => {
 
   // --- KEEP YOUR ROBUST LOGOUT LOGIC HERE ---
   const handleLogout = async () => {
-    await axios.post("https://backend.schmidvision.com/api/logout_mobile", {
+    await axios.post(getApiEndpoint("/api/logout_mobile"), {
       username: token,
     });
     setToken(null);
@@ -360,7 +359,7 @@ const Admin = (props) => {
   const handleToggleNotification = async (systemId, enabled) => {
     try {
       await axios.post(
-        "https://backend.schmidvision.com/api/update_notification_status",
+        getApiEndpoint("/api/update_notification_status"),
         { system_id: systemId, enabled },
         {
           headers: {
@@ -415,7 +414,7 @@ const Admin = (props) => {
   const handleGateChange = async (systemId, gate) => {
     try {
       await axios.post(
-        "https://backend.schmidvision.com/api/update_user_gate",
+        getApiEndpoint("/api/update_user_gate"),
         { system_id: systemId, gate },
         {
           headers: {
@@ -437,114 +436,6 @@ const Admin = (props) => {
     }
   };
 
-  useEffect(() => {
-    // Load the notification from localStorage on mount
-    const stored = localStorage.getItem("importantNotification");
-    if (stored) {
-      setImportantNotification(JSON.parse(stored));
-    }
-    // Listen for changes (optional: for real-time updates)
-    const onStorage = (e) => {
-      if (e.key === "importantNotification") {
-        setImportantNotification(e.newValue ? JSON.parse(e.newValue) : null);
-      }
-    };
-    window.addEventListener("storage", onStorage);
-    return () => window.removeEventListener("storage", onStorage);
-  }, []);
-
-  // Notification popover content (modern, user-friendly, responsive)
-  const notificationContent = importantNotification ? (
-    <div
-      style={{
-        minWidth: 160,
-        maxWidth: 220,
-        padding: 10,
-        borderRadius: 10,
-        background: "#fff",
-        boxShadow: "0 8px 30px rgba(2,6,23,0.10)",
-        boxSizing: "border-box",
-        display: "flex",
-        flexDirection: "column",
-        gap: 8,
-      }}
-    >
-      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-        <Avatar
-          style={{
-            background: "#faad14",
-            color: "#fff",
-            fontWeight: 700,
-            fontSize: 18,
-          }}
-          size={32}
-        >
-          <BellOutlined />
-        </Avatar>
-        <div style={{ flex: 1 }}>
-          <div style={{ fontWeight: 600, fontSize: 14, color: "#222" }}>
-            {importantNotification.title}
-          </div>
-          <Text type="secondary" style={{ fontSize: 11 }}>
-            {importantNotification.timestamp
-              ? dayjs(importantNotification.timestamp).format(
-                  "YYYY-MM-DD HH:mm"
-                )
-              : ""}
-          </Text>
-        </div>
-      </div>
-      <div
-        style={{
-          fontSize: 13,
-          color: "#333",
-          margin: "6px 0 0 0",
-          wordBreak: "break-word",
-          whiteSpace: "pre-line",
-        }}
-      >
-        {importantNotification.body}
-      </div>
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "flex-end",
-          gap: 8,
-          marginTop: 8,
-        }}
-      >
-        <Button size="small" onClick={() => setNotifVisible(false)}>
-          Close
-        </Button>
-        <Button
-          size="small"
-          danger
-          icon={<DeleteOutlined />}
-          onClick={() => {
-            setImportantNotification(null);
-            localStorage.removeItem("importantNotification");
-            setNotifVisible(false);
-          }}
-        >
-          Delete
-        </Button>
-      </div>
-    </div>
-  ) : (
-    <div
-      style={{
-        minWidth: 120,
-        maxWidth: 180,
-        color: "#888",
-        padding: 10,
-        textAlign: "center",
-        fontSize: 13,
-      }}
-    >
-      No notifications
-    </div>
-  );
-
   return (
     <Layout className="app-layout">
       <Header className="app-header">
@@ -553,25 +444,8 @@ const Admin = (props) => {
           <span>Admin Dashboard</span>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-          {/* Notification Bell */}
-          <Popover
-            content={notificationContent}
-            trigger="click"
-            open={notifVisible}
-            onOpenChange={setNotifVisible}
-            placement="bottomRight"
-          >
-            <Badge dot={!!importantNotification}>
-              <BellOutlined
-                style={{
-                  fontSize: 22,
-                  color: importantNotification ? "#faad14" : "#fff",
-                  cursor: "pointer",
-                }}
-                aria-label="Notifications"
-              />
-            </Badge>
-          </Popover>
+          {/* Notification Popover */}
+
           <Button
             className="logout-icon-btn"
             type="text"
@@ -828,8 +702,19 @@ const Admin = (props) => {
               label: window.innerWidth < 480 ? "Admin" : "Admin Management",
               children: <UserProfile token={token} />,
             },
+            {
+              key:"3",
+              label: window.innerWidth < 480 ? "Auth" : "Door Management",
+              children:<Authorization/>,
+            },
+            {
+              key: "4", 
+              label: window.innerWidth < 480 ? "flaged" : "Authorization Logs",
+              children: <Flag />,
+            }
           ]}
         />
+      
       </Content>
     </Layout>
   );

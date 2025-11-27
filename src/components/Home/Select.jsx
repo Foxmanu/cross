@@ -8,12 +8,9 @@ const SelectControls = ({
   placeholder = "Option",
 }) => {
   return (
-    <Card
-      // className="select-card custom-card"
-      style={{ padding: "16px", margin: "0px 15px" }}
-    >
+    <>
       <Select
-        // className="fullwidth-select"
+     className="big-select"
         value={value}
         onChange={(val) => {
           if (typeof onChange === "function") onChange(val);
@@ -22,8 +19,9 @@ const SelectControls = ({
         allowClear={false} // cleared option removed
         style={{ width: "calc(100% - 32px)" }}
         options={options}
-      />
-    </Card>
+      /></>
+    
+    
   );
 };
 export default SelectControls;

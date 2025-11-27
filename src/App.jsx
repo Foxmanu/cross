@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { subscribeToPush } from "./main.jsx";
 import LoginPage from "./components/LoginPage.jsx";
@@ -99,23 +99,6 @@ function App() {
     }
   };
 
-  useEffect(() => {
-    if ("serviceWorker" in navigator) {
-      navigator.serviceWorker.addEventListener("message", (event) => {
-        if (event.data && event.data.type === "IMPORTANT_NOTIFICATION") {
-          localStorage.setItem(
-            "importantNotification",
-            JSON.stringify({
-              title: event.data.title,
-              body: event.data.body,
-              timestamp: event.data.timestamp,
-            })
-          );
-        }
-      });
-    }
-  }, []);
-
   return (
     <>
       <BrowserRouter>
@@ -135,6 +118,7 @@ function App() {
         position="top-right"
         autoClose={4000}
         hideProgressBar={true}
+        limit={1} // Only one toast visible at a time
       />
     </>
   );

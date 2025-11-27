@@ -3,6 +3,7 @@ import dayjs from "dayjs"; // <-- added
 import Date from "../Date/Date";
 import Data from "../Data/Data";
 import SelectControls from "./Select";
+import { getApiEndpoint } from "../../utils/apiConfig";
 import "./HomePage.css";
 import { Layout, theme } from "antd"; // removed Button, Space
 import { LogoutOutlined } from "@ant-design/icons";
@@ -28,9 +29,9 @@ function HomePage({
 
   // Robust logout logic
   const handleLogout = async () => {
-    await axios.post("https://backend.schmidvision.com/api/logout_mobile", {
-      username: token,
-    });
+   await axios.post(getApiEndpoint("/api/logout_mobile"), {
+    username: token,
+  });
     setToken(null);
     setLoginStatus(false);
     setStatus("Enable Push Notifications");
@@ -62,15 +63,15 @@ function HomePage({
         endDate,
         gate: option || activeLearningOption,
       });
-      const response = await axios.post(
-        "https://backend.schmidvision.com/api/active_learning_mobile",
-        { startDate, endDate, gate: option || activeLearningOption }, // send option
-        {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-        }
-      );
+       const response = await axios.post(
++     getApiEndpoint("/api/active_learning_mobile"),
+      { startDate, endDate, gate: option || activeLearningOption },
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      }
+    );
 
       if (response.status === 200) {
         setData(response.data.dailyRecords || []);
@@ -78,10 +79,10 @@ function HomePage({
     } catch (error) {
       if (error.response && error.response.status === 403 && refreshToken) {
         try {
-          const refreshResponse = await axios.post(
-            "https://backend.schmidvision.com/api/check_reset_elgibility",
-            { username, refreshToken }
-          );
+         const refreshResponse = await axios.post(
++         getApiEndpoint("/api/check_reset_elgibility"),
+          { username, refreshToken }
+        );
 
           if (
             refreshResponse.status === 200 &&
@@ -129,9 +130,10 @@ function HomePage({
     const fetchGateOptions = async () => {
       try {
         const resp = await axios.post(
-          "https://backend.schmidvision.com/api/gates",
-          {}
-        );
++       getApiEndpoint("/api/gates"),
+        {}
+      );
+        console.log("Gate options response:", resp);
         if (resp.status === 200 && resp.data && resp.data.success) {
           let gatesRaw = resp.data.gates;
           if (
@@ -198,7 +200,7 @@ function HomePage({
   // handler called when SelectControls changes
   const handleSelectChange = (val) => {
     setActiveLearningOption(val);
-    // send selected value + current dateRange to backend
+   
     fetchFromBackend(dateRange, val);
   };
 
