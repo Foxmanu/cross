@@ -84,6 +84,7 @@ function LoginPage({ setToken, setLoginStatus, handleSubscribe, setRole }) {
       );
       console.log("Login response:", res);
       const data = res.data;
+      console.log("Login data:", data);
 
       // Store tokens and user info in localStorage BEFORE subscribing
       localStorage.setItem("loginStatus", true);

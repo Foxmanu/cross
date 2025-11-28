@@ -25,6 +25,9 @@ const Date = ({ fetchFromBackend, setDateRange }) => {
 
   useEffect(() => {
     if (startDate && endDate) {
+ 
+   
+   
       const range = {
         startDate: startDate.format("YYYY-MM-DD HH:mm:ss"),
         endDate: endDate.format("YYYY-MM-DD HH:mm:ss"),

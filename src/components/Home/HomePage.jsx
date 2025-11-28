@@ -63,15 +63,15 @@ function HomePage({
         endDate,
         gate: option || activeLearningOption,
       });
-       const response = await axios.post(
-+     getApiEndpoint("/api/active_learning_mobile"),
-      { startDate, endDate, gate: option || activeLearningOption },
-      {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-      }
-    );
+      const response = await axios.post(
+        "https://backend.schmidvision.com/api/active_learning_mobile",
+        { startDate, endDate, gate: option || activeLearningOption }, // send option
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        }
+      );
 
       if (response.status === 200) {
         setData(response.data.dailyRecords || []);
@@ -79,10 +79,10 @@ function HomePage({
     } catch (error) {
       if (error.response && error.response.status === 403 && refreshToken) {
         try {
-         const refreshResponse = await axios.post(
-+         getApiEndpoint("/api/check_reset_elgibility"),
-          { username, refreshToken }
-        );
+          const refreshResponse = await axios.post(
+            "https://backend.schmidvision.com/api/check_reset_elgibility",
+            { username, refreshToken }
+          );
 
           if (
             refreshResponse.status === 200 &&
@@ -124,15 +124,16 @@ function HomePage({
       }
     }
   };
-
   // fetch select options from backend (run on mount and when token changes)
   useEffect(() => {
     const fetchGateOptions = async () => {
+      console.log("fetchGateOptions called",getApiEndpoint("/api/gates"));
       try {
+        
+
         const resp = await axios.post(
-+       getApiEndpoint("/api/gates"),
-        {}
-      );
+          getApiEndpoint("/api/gates")
+        );
         console.log("Gate options response:", resp);
         if (resp.status === 200 && resp.data && resp.data.success) {
           let gatesRaw = resp.data.gates;
@@ -203,7 +204,7 @@ function HomePage({
    
     fetchFromBackend(dateRange, val);
   };
-
+console.log("dddsddd",dateRange);
   return (
     <Layout hasSider>
       <Layout>
