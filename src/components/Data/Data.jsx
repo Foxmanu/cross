@@ -10,18 +10,26 @@ import {
   ResponsiveContainer,
   CartesianGrid,
 } from "recharts";
-import { Card, Button, DatePicker, Select } from "antd";
+import { Card, Button, DatePicker, Select, Spin } from "antd"; // <-- Add Spin
 import { ReloadOutlined } from "@ant-design/icons";
 
 import "./Data.css";
 const { Option } = Select;
 dayjs.extend(duration);
 
-const Data = ({ data, onRefresh, onOptionChange }) => {
+const Data = ({ data, loading, onRefresh, onOptionChange }) => { // <-- Add loading prop
   const [activeTab, setActiveTab] = useState("events");
   const [pageIndex, setPageIndex] = useState(0);
 
   const itemsPerPage = 5;
+
+  if (loading) {
+    return (
+      <div className="data-loading-spinner" style={{ textAlign: "center", padding: "2em" }}>
+        <Spin size="large" tip="Loading data..." />
+      </div>
+    );
+  }
 
   if (!Array.isArray(data)) {
     return (

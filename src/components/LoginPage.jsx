@@ -210,6 +210,25 @@ function LoginPage({ setToken, setLoginStatus, handleSubscribe, setRole }) {
             Sign In
           </Button>
         </Form>
+        {/* Dev Mode Button */}
+        {/* <Button
+          style={{ marginTop: 16, background: "#e0e7ff", color: "#3730a3", fontWeight: 600 }}
+          block
+          onClick={() => {
+            // Set dummy data and navigate
+            localStorage.setItem("loginStatus", true);
+            localStorage.setItem("accessToken", "dev-access-token");
+            localStorage.setItem("refreshToken", "dev-refresh-token");
+            localStorage.setItem("role", "admin");
+            localStorage.setItem("username", "devuser");
+            setToken("devuser");
+            setLoginStatus(true);
+            setRole("home");
+            navigate("/home");
+          }}
+        >
+          Dev Mode (Dummy Login)
+        </Button> */}
       </div>
     </div>
   );

@@ -23,6 +23,8 @@ function HomePage({
   const [dateRange, setDateRange] = useState({ startDate: "", endDate: "" });
   const [activeLearningOption, setActiveLearningOption] = useState(undefined); // no default
   const [gateOptions, setGateOptions] = useState([]); // options fetched from backend
+
+  const [loading, setLoading] = useState(false);
   const {
     token: { borderRadiusLG },
   } = theme.useToken();
@@ -52,7 +54,7 @@ function HomePage({
       );
       return;
     }
-
+   setLoading(true);
     const username = localStorage.getItem("username");
     const accessToken = localStorage.getItem("accessToken");
     const refreshToken = localStorage.getItem("refreshToken");
@@ -76,6 +78,7 @@ function HomePage({
       if (response.status === 200) {
         setData(response.data.dailyRecords || []);
       }
+      setLoading(false); 
     } catch (error) {
       if (error.response && error.response.status === 403 && refreshToken) {
         try {
@@ -100,15 +103,16 @@ function HomePage({
           }
         } catch (refreshError) {
           alert("Session expired. Please login again.");
-          setToken(null);
-          setLoginStatus(false);
-          setStatus("Enable Push Notifications");
-          localStorage.removeItem("loginStatus");
-          localStorage.removeItem("accessToken");
-          localStorage.removeItem("refreshToken");
-          localStorage.removeItem("role");
-          localStorage.removeItem("username");
+          // setToken(null);
+          // setLoginStatus(false);
+          // setStatus("Enable Push Notifications");
+          // localStorage.removeItem("loginStatus");
+          // localStorage.removeItem("accessToken");
+          // localStorage.removeItem("refreshToken");
+          // localStorage.removeItem("role");
+          // localStorage.removeItem("username");
         }
+        setLoading(false); 
       } else {
         let message = "❌ An unexpected error occurred";
         if (error.response) {
@@ -260,6 +264,7 @@ console.log("dddsddd",dateRange);
           >
             <Data
               data={data}
+              loading={loading} 
               onRefresh={() =>
                 fetchFromBackend(dateRange, activeLearningOption)
               }
