@@ -77,7 +77,7 @@ const Admin = (props) => {
     const fetchGateOptions = async () => {
       try {
         const resp = await axios.post(
-          getApiEndpoint("/api/gates"),
+          getApiEndpoint("/gates"),
           {}
         );
         if (resp.status === 200 && resp.data && resp.data.success) {
@@ -116,7 +116,7 @@ const Admin = (props) => {
     try {
       // POST with empty body and proper config (backend returns [hierarchyData])
       const response = await axios.post(
-        getApiEndpoint("/api/get_departments"),
+        getApiEndpoint("/get_departments"),
         {}, // empty body
         {
           headers: {
@@ -308,7 +308,7 @@ const Admin = (props) => {
 
     try {
       const response = await axios.post(
-        getApiEndpoint("/api/get_department_team_members"),
+        getApiEndpoint("/get_department_team_members"),
         {
           department: deptToSend,
           team: teamToSend,
@@ -359,7 +359,7 @@ const Admin = (props) => {
   const handleToggleNotification = async (systemId, enabled) => {
     try {
       await axios.post(
-        getApiEndpoint("/api/update_notification_status"),
+        getApiEndpoint("/update_notification_status"),
         { system_id: systemId, enabled },
         {
           headers: {

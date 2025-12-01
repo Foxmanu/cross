@@ -5,6 +5,7 @@ import Data from "../Data/Data";
 import SelectControls from "../Home/Select";
 import { Layout, theme, Card } from "antd";
 import axios from "axios";
+import { getApiEndpoint } from "../../utils/apiConfig";
 
 const { Content } = Layout;
 
@@ -40,7 +41,7 @@ const UserProfile = ({ token }) => {
         gate: option || activeLearningOption,
       });
       const response = await axios.post(
-        "https://backend.schmidvision.com/api/active_learning_mobile",
+        getApiEndpoint("/api/active_learning_mobile"),
         { startDate, endDate, gate: option || activeLearningOption }, // send option
         {
           headers: {
@@ -56,7 +57,7 @@ const UserProfile = ({ token }) => {
       if (error.response && error.response.status === 403 && refreshToken) {
         try {
           const refreshResponse = await axios.post(
-            "https://backend.schmidvision.com/api/check_reset_elgibility",
+            getApiEndpoint("/api/check_reset_elgibility"),
             { username, refreshToken }
           );
 
@@ -104,7 +105,7 @@ const UserProfile = ({ token }) => {
     const fetchGateOptions = async () => {
       try {
         const resp = await axios.post(
-          "https://backend.schmidvision.com/api/gates",
+          getApiEndpoint("/api/gates"),
           {}
         );
         if (resp.status === 200 && resp.data && resp.data.success) {

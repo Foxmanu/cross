@@ -6,7 +6,7 @@ import "antd/dist/reset.css"; // For Ant Design v5+or Ant Design v5+
 import { messaging } from "./firebase"; // Import Firebase messaging
 import { getToken } from "firebase/messaging";
 import axios from "axios";
-import "./utils/apiConfig.js"; // Import axios configuration
+import { getApiEndpoint } from "./utils/apiConfig";
 
 export async function subscribeToPush(username) {
   if (!("serviceWorker" in navigator)) {
