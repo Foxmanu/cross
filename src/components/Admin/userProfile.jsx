@@ -41,7 +41,7 @@ const UserProfile = ({ token }) => {
         gate: option || activeLearningOption,
       });
       const response = await axios.post(
-        getApiEndpoint("/api/active_learning_mobile"),
+      ("https://backend.schmidvision.com/api/active_learning_mobile"),
         { startDate, endDate, gate: option || activeLearningOption }, // send option
         {
           headers: {
@@ -57,7 +57,7 @@ const UserProfile = ({ token }) => {
       if (error.response && error.response.status === 403 && refreshToken) {
         try {
           const refreshResponse = await axios.post(
-            getApiEndpoint("/api/check_reset_elgibility"),
+            ("https://backend.schmidvision.com/api/check_reset_elgibility"),
             { username, refreshToken }
           );
 
