@@ -34,7 +34,6 @@ import { getApiEndpoint } from "../../utils/apiConfig";
 const { Header, Content } = Layout;
 const { Option } = Select;
 
-
 const Admin = (props) => {
   const {
     token,
@@ -45,13 +44,13 @@ const Admin = (props) => {
     setStatus,
   } = props;
   const [hierarchyData, setHierarchyData] = useState({});
-  const [selectedDept, setSelectedDept] = useState("All");
-  const [selectedTeam, setSelectedTeam] = useState("All");
+  const [selectedDept, setSelectedDept] = useState("all");
+  const [selectedTeam, setSelectedTeam] = useState("all");
   const [members, setMembers] = useState([]);
   const [startDate, setStartDate] = useState(dayjs());
   const [endDate, setEndDate] = useState(dayjs());
   const [doorMappings, setDoorMappings] = useState([]);
-  const [selectedDoor, setSelectedDoor] = useState(null);
+  const [selectedDoor, setSelectedDoor] = useState(undefined);
 
   // Add these after your existing useState declarations
   const [isEditingTime, setIsEditingTime] = useState(false);
@@ -59,9 +58,19 @@ const Admin = (props) => {
   const [searchText, setSearchText] = useState("");
   const [activeTab, setActiveTab] = useState("1"); // <-- Add this line
   const [gateOptions, setGateOptions] = useState([]); // Add this after existing state declarations
-  const [selectedGateFilter, setSelectedGateFilter] = useState(null);
-  const [selectedGate, setSelectedGate] = useState(null); // <-- Add this line
+  const [selectedGateFilter, setSelectedGateFilter] = useState(undefined);
+  const [selectedGate, setSelectedGate] = useState(undefined); // <-- Add this line
   const [filterDrawerOpen, setFilterDrawerOpen] = useState(false); // For sidebar filter drawer
+  const [currentPage, setCurrentPage] = useState(1); // Track current page
+  const [pageSize, setPageSize] = useState(10); // Track page size
+  const [totalMembers, setTotalMembers] = useState(0); // Track total count
+
+  // Add pending filter states
+  const [pendingDept, setPendingDept] = useState(selectedDept);
+  const [pendingTeam, setPendingTeam] = useState(selectedTeam);
+  const [pendingGate, setPendingGate] = useState(selectedGate);
+  const [pendingStartDate, setPendingStartDate] = useState(startDate);
+  const [pendingEndDate, setPendingEndDate] = useState(endDate);
 
   const navigate = useNavigate();
 
@@ -146,12 +155,12 @@ const Admin = (props) => {
         const allTeams = Array.from(allTeamsSet);
 
         // Build new hierarchy including "All" entry
-        const newResp = { All: allTeams, ...respData };
+        const newResp = { all: allTeams, ...respData };
 
         // Ensure each department/team list includes "All" as first option
         Object.keys(newResp).forEach((k) => {
           if (!Array.isArray(newResp[k])) newResp[k] = [];
-          if (!newResp[k].includes("All")) newResp[k].unshift("All");
+          if (!newResp[k].includes("all")) newResp[k].unshift("all");
         });
 
         setHierarchyData(newResp);
@@ -168,7 +177,7 @@ const Admin = (props) => {
           if (teams.length > 0) {
             setSelectedTeam(teams[0]);
             // fetch members: if "All" selected, send nulls so backend can handle appropriately
-            if (teams[0] === "All") {
+            if (teams[0] === "all") {
               fetchMembers(null, null, startDate, endDate);
             } else {
               fetchMembers(firstDept, teams[0], startDate, endDate);
@@ -246,17 +255,17 @@ const Admin = (props) => {
 
   const handleDeptChange = (value) => {
     setSelectedDept(value);
-    setSelectedTeam("All");
+    setSelectedTeam("all");
     setMembers([]);
-    if (value === "All") {
+    if (value === "all") {
       fetchMembers(null, null, startDate, endDate, selectedGate);
     } else {
       const teams = Array.isArray(hierarchyData[value])
         ? hierarchyData[value]
         : [];
       const teamToFetch = teams && teams.length ? teams[0] : null;
-      setSelectedTeam(teamToFetch || "All");
-      if (teamToFetch === "All" || teamToFetch === null) {
+      setSelectedTeam(teamToFetch || "all");
+      if (teamToFetch === "all" || teamToFetch === null) {
         fetchMembers(value, null, startDate, endDate, selectedGate);
       } else {
         fetchMembers(value, teamToFetch, startDate, endDate, selectedGate);
@@ -267,10 +276,10 @@ const Admin = (props) => {
   const handleTeamChange = (value) => {
     setSelectedTeam(value);
     if (startDate && endDate) {
-      if (selectedDept === "All") {
+      if (selectedDept === "all") {
         fetchMembers(
           null,
-          value === "All" ? null : value,
+          value === "all" ? null : value,
           startDate,
           endDate,
           selectedGate
@@ -278,7 +287,7 @@ const Admin = (props) => {
       } else {
         fetchMembers(
           selectedDept,
-          value === "All" ? null : value,
+          value === "all" ? null : value,
           startDate,
           endDate,
           selectedGate
@@ -301,20 +310,50 @@ const Admin = (props) => {
     }
   };
 
-  const fetchMembers = async (department, team, start, end, gate) => {
-    const deptToSend = department || undefined;
-    const teamToSend = team || undefined;
-    const gateToSend = gate || selectedGate; // Use selectedGate if not provided
+  // Update fetchMembers to accept page and limit
+  const fetchMembers = async (
+    department,
+    team,
+    start,
+    end,
+    gate,
+    page = currentPage,
+    limit = pageSize
+  ) => {
+    console.log("Fetching members with111:", {
+      department,
+      team,
+      startDate: start.format("YYYY-MM-DD"),
+      endDate: end.format("YYYY-MM-DD"),
+      gate,
+      page,
+      limit,
+    });
+   const deptToSend = !department || department === null ? undefined : department;
+  const teamToSend = !team || team === null ? undefined : team;
+  const gateToSend = !gate || gate === null ? undefined : gate;
 
+
+    console.log("Fetching members with:", {
+      department: deptToSend,
+      team: teamToSend,
+      startDate: start.format("YYYY-MM-DD"),
+      endDate: end.format("YYYY-MM-DD"),
+      gate: gateToSend,
+      page,
+      limit,
+    });
     try {
       const response = await axios.post(
         getApiEndpoint("/get_department_team_members"),
         {
           department: deptToSend,
           team: teamToSend,
-          startDate: start.format("YYYY-MM-DD : HH:mm:ss"),
-          endDate: end.format("YYYY-MM-DD : HH:mm:ss"),
-          gate: gate, // Send gate
+          startDate: start.format("YYYY-MM-DD"),
+          endDate: end.format("YYYY-MM-DD"),
+          gate: gateToSend,
+          page, // <-- send page
+          limit, // <-- send limit
         },
         {
           headers: {
@@ -331,14 +370,26 @@ const Admin = (props) => {
             enabled: member.admin_monitor,
             averageStay: member.averageDwellTime,
             systemId: member.system_id,
-            assignedGate: member.assigned_gate || undefined, // Add this line
+            assignedGate: member.assigned_gate || undefined,
           }))
         );
+        setTotalMembers(response.data.totalRegisteredPersons || 0); // <-- set total count from backend
       }
     } catch (err) {
       console.error("❌ Error fetching members:", err);
     }
   };
+
+  // When filters/search change, reset to page 1
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [selectedDept, selectedTeam, selectedGate, searchText, startDate, endDate]);
+
+  // Fetch members when page or pageSize changes
+  useEffect(() => {
+    fetchMembers(selectedDept, selectedTeam, startDate, endDate, selectedGate, currentPage, pageSize);
+    // eslint-disable-next-line
+  }, [currentPage, pageSize]);
 
   // --- KEEP YOUR ROBUST LOGOUT LOGIC HERE ---
   const handleLogout = async () => {
@@ -518,10 +569,10 @@ const Admin = (props) => {
                         Filters
                       </Button>
                     </div>
-                    {(selectedDept !== "All" || selectedTeam !== "All") && (
+                    {(selectedDept !== "all" || selectedTeam !== "all") && (
                       <div className="active-filters-tags">
                         <span className="filter-badge">{selectedDept}</span>
-                        {selectedTeam && selectedTeam !== "All" && (
+                        {selectedTeam && selectedTeam !== "all" && (
                           <span className="filter-badge">{selectedTeam}</span>
                         )}
                       </div>
@@ -560,8 +611,8 @@ const Admin = (props) => {
                           <Select
                             placeholder="Select Department"
                             style={{ width: "100%" }}
-                            onChange={handleDeptChange}
-                            value={selectedDept}
+                            onChange={setPendingDept}
+                            value={pendingDept}
                           >
                             {Object.keys(hierarchyData)?.map((dept) => (
                               <Option key={dept} value={dept}>
@@ -575,13 +626,13 @@ const Admin = (props) => {
                           <Select
                             placeholder="Select Team"
                             style={{ width: "100%" }}
-                            onChange={handleTeamChange}
-                            value={selectedTeam}
-                            disabled={!selectedDept}
+                            onChange={setPendingTeam}
+                            value={pendingTeam}
+                            disabled={!pendingDept}
                           >
-                            {selectedDept &&
-                              Array.isArray(hierarchyData[selectedDept]) &&
-                              hierarchyData[selectedDept].map((team) => (
+                            {pendingDept &&
+                              Array.isArray(hierarchyData[pendingDept]) &&
+                              hierarchyData[pendingDept].map((team) => (
                                 <Option key={team} value={team}>
                                   {team}
                                 </Option>
@@ -599,8 +650,8 @@ const Admin = (props) => {
                           </label>
                           <DatePicker
                             style={{ width: "100%" }}
-                            value={startDate}
-                            onChange={handleStartDateChange}
+                            value={pendingStartDate}
+                            onChange={setPendingStartDate}
                             format="YYYY-MM-DD"
                           />
                         </div>
@@ -610,8 +661,8 @@ const Admin = (props) => {
                           </label>
                           <DatePicker
                             style={{ width: "100%" }}
-                            value={endDate}
-                            onChange={handleEndDateChange}
+                            value={pendingEndDate}
+                            onChange={setPendingEndDate}
                             format="YYYY-MM-DD"
                           />
                         </div>
@@ -627,17 +678,8 @@ const Admin = (props) => {
                           <Select
                             placeholder="Filter by gate"
                             style={{ width: "100%" }}
-                            value={selectedGate}
-                            onChange={(value) => {
-                              setSelectedGate(value);
-                              fetchMembers(
-                                selectedDept,
-                                selectedTeam,
-                                startDate,
-                                endDate,
-                                value
-                              );
-                            }}
+                            value={pendingGate}
+                            onChange={setPendingGate}
                           >
                             {gateOptions.map((gate) => (
                               <Option key={gate.value} value={gate.value}>
@@ -654,7 +696,25 @@ const Admin = (props) => {
                           type="primary"
                           block
                           size="large"
-                          onClick={() => setFilterDrawerOpen(false)}
+                          onClick={() => {
+                            setSelectedDept(pendingDept);
+                            setSelectedTeam(pendingTeam);
+                            setSelectedGate(pendingGate);
+                            setStartDate(pendingStartDate);
+                            setEndDate(pendingEndDate);
+                            setFilterDrawerOpen(false);
+                            // Fetch members with new filters
+                            fetchMembers(
+                              pendingDept,
+                              pendingTeam,
+                              pendingStartDate,
+                              pendingEndDate,
+                              pendingGate,
+                              1, // reset to page 1
+                              pageSize
+                            );
+                            setCurrentPage(1);
+                          }}
                         >
                           Apply Filters
                         </Button>
@@ -662,8 +722,8 @@ const Admin = (props) => {
                           block
                           size="large"
                           onClick={() => {
-                            setSelectedDept("All");
-                            setSelectedTeam("All");
+                            setSelectedDept("all");
+                            setSelectedTeam("all");
                             setSelectedGate(null);
                             setSearchText("");
                             setStartDate(dayjs());
@@ -682,12 +742,18 @@ const Admin = (props) => {
                       dataSource={filteredMembers}
                       columns={columns}
                       pagination={{
-                        pageSize: 10,
+                        current: currentPage,
+                        pageSize: pageSize,
+                        total: totalMembers,
                         showSizeChanger: true,
                         pageSizeOptions: ["10", "20", "50"],
                         showQuickJumper: true,
                         showTotal: (total, range) =>
                           `${range[0]}-${range[1]} of ${total} items`,
+                        onChange: (page, size) => {
+                          setCurrentPage(page);
+                          setPageSize(size);
+                        },
                       }}
                       bordered={true}
                       size="small"
@@ -703,18 +769,17 @@ const Admin = (props) => {
               children: <UserProfile token={token} />,
             },
             {
-              key:"3",
+              key: "3",
               label: window.innerWidth < 480 ? "Auth" : "Door Management",
-              children:<Authorization/>,
+              children: <Authorization />,
             },
             {
-              key: "4", 
+              key: "4",
               label: window.innerWidth < 480 ? "flaged" : "Authorization Logs",
               children: <Flag />,
-            }
+            },
           ]}
         />
-      
       </Content>
     </Layout>
   );
