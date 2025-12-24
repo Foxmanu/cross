@@ -1,14 +1,14 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { Form, Input, Button, Typography, Alert } from "antd"; // <-- import Alert
-import { UserOutlined, LockOutlined, BellOutlined } from "@ant-design/icons";
+import { UserOutlined, LockOutlined, BellOutlined, TeamOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import { getApiEndpoint } from "../utils/apiConfig";
 import "./LoginPage.css";
 
 const { Title, Text } = Typography;
 
-function LoginPage({ setToken, setLoginStatus, handleSubscribe, setRole }) {
+function LoginPage({ setUsername, setLoginStatus, handleSubscribe, setRole }) {
   const [loading, setLoading] = useState(false);
   const [permissionStatus, setPermissionStatus] = useState("default");
   const [error, setError] = useState("");
@@ -82,6 +82,10 @@ function LoginPage({ setToken, setLoginStatus, handleSubscribe, setRole }) {
           platform,
         }
       );
+      if (res.status !== 200) {
+        throw new Error("Login failed. Please try again.");
+      }
+
       console.log("Login response:", res);
       const data = res.data;
       console.log("Login data:", data);
@@ -92,12 +96,13 @@ function LoginPage({ setToken, setLoginStatus, handleSubscribe, setRole }) {
       localStorage.setItem("refreshToken", data.refreshToken);
       localStorage.setItem("role", data.role);
       localStorage.setItem("username", data.username);
+      localStorage.setItem("mobile_access_features", data.mobile_access_features);
 
       // Subscribe to push (wait for it to finish)
       await handleSubscribe(username);
 
       // Now update state and navigate
-      setToken(data.username);
+      setUsername(data.username);
       setLoginStatus(true);
       setRole(data.role);
 
@@ -109,8 +114,10 @@ function LoginPage({ setToken, setLoginStatus, handleSubscribe, setRole }) {
     } catch (err) {
       if (err.response && err.response.status === 401) {
         setError("User not found. Please check your username and password.");
+
       } else {
         setError("Login failed. Please try again.");
+        localStorage.removeItem("organizationName");
       }
       setLoginStatus(false);
     } finally {
@@ -162,6 +169,7 @@ function LoginPage({ setToken, setLoginStatus, handleSubscribe, setRole }) {
             ]}
           >
             <Input
+              prefix={<TeamOutlined />}
               placeholder="e.g., acme, mycompany"
               autoCapitalize="none"
               size="large"
@@ -211,7 +219,7 @@ function LoginPage({ setToken, setLoginStatus, handleSubscribe, setRole }) {
           </Button>
         </Form>
         {/* Dev Mode Button */}
-        {/* <Button
+        <Button
           style={{ marginTop: 16, background: "#e0e7ff", color: "#3730a3", fontWeight: 600 }}
           block
           onClick={() => {
@@ -221,14 +229,15 @@ function LoginPage({ setToken, setLoginStatus, handleSubscribe, setRole }) {
             localStorage.setItem("refreshToken", "dev-refresh-token");
             localStorage.setItem("role", "admin");
             localStorage.setItem("username", "devuser");
-            setToken("devuser");
+            localStorage.setItem("organizationName", "dev_org");
+            setUsername("devuser");
             setLoginStatus(true);
-            setRole("home");
-            navigate("/home");
+            setRole("admin");
+            navigate("/admin");
           }}
         >
           Dev Mode (Dummy Login)
-        </Button> */}
+        </Button>
       </div>
     </div>
   );

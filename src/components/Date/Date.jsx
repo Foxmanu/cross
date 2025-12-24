@@ -1,12 +1,28 @@
 import React, { useState, useEffect } from "react";
-import { Card, DatePicker } from "antd";
+import { DatePicker } from "antd";
 import dayjs from "dayjs";
 import "./Date.css";
 
-const Date = ({ fetchFromBackend, setDateRange }) => {
+const Date = ({ setDateRange }) => {
   const [startDate, setStartDate] = useState(dayjs().startOf("day"));
   const [endDate, setEndDate] = useState(dayjs().endOf("day"));
   const [activeTab, setActiveTab] = useState("today");
+
+  const computeShortcutForRange = (s, e) => {
+    const today = dayjs();
+    if (s.isSame(today.startOf("day")) && e.isSame(today.endOf("day"))) return "today";
+    if (
+      s.isSame(today.subtract(6, "day").startOf("day")) &&
+      e.isSame(today.endOf("day"))
+    )
+      return "week";
+    if (
+      s.isSame(today.subtract(29, "day").startOf("day")) &&
+      e.isSame(today.endOf("day"))
+    )
+      return "month";
+    return null;
+  };
 
   const handleShortcutClick = (type) => {
     setActiveTab(type);
@@ -25,14 +41,16 @@ const Date = ({ fetchFromBackend, setDateRange }) => {
 
   useEffect(() => {
     if (startDate && endDate) {
- 
-   
-   
+      const shortcut = computeShortcutForRange(startDate, endDate);
+      // set activeTab to matching shortcut or null for custom ranges
+      setActiveTab(shortcut);
       const range = {
         startDate: startDate.format("YYYY-MM-DD HH:mm:ss"),
         endDate: endDate.format("YYYY-MM-DD HH:mm:ss"),
+        shortcut, // "today" | "week" | "month" | null
+        compact: shortcut === "week",
       };
-      setDateRange(range); // only update parent's date range — DO NOT call fetchFromBackend here
+      setDateRange(range);
     }
   }, [startDate, endDate, setDateRange]);
 
@@ -44,20 +62,23 @@ const Date = ({ fetchFromBackend, setDateRange }) => {
           <button
             className={`shortcut-tab${activeTab === "today" ? " active" : ""}`}
             onClick={() => handleShortcutClick("today")}
+            type="button"
           >
             Today
           </button>
           <button
             className={`shortcut-tab${activeTab === "week" ? " active" : ""}`}
             onClick={() => handleShortcutClick("week")}
+            type="button"
           >
-            Week
+            7 Days
           </button>
           <button
             className={`shortcut-tab${activeTab === "month" ? " active" : ""}`}
             onClick={() => handleShortcutClick("month")}
+            type="button"
           >
-            Month
+            30 Days
           </button>
         </div>
       </div>
@@ -70,7 +91,11 @@ const Date = ({ fetchFromBackend, setDateRange }) => {
             <DatePicker
               className="range-picker"
               value={startDate}
-              onChange={setStartDate}
+              onChange={(date) => {
+                if (!date) return;
+                setStartDate(date.startOf("day"));
+              }}
+              allowClear={false}
             />
           </div>
           <div className="date-column">
@@ -78,7 +103,11 @@ const Date = ({ fetchFromBackend, setDateRange }) => {
             <DatePicker
               className="range-picker"
               value={endDate}
-              onChange={setEndDate}
+              onChange={(date) => {
+                if (!date) return;
+                setEndDate(date.endOf("day"));
+              }}
+              allowClear={false}
             />
           </div>
         </div>

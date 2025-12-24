@@ -1,21 +1,23 @@
-import React, { useState, useEffect } from "react";
-import dayjs from "dayjs"; // <-- added
+import React, { useState, useEffect, use, act } from "react";
+
 import Date from "../Date/Date";
 import Data from "../Data/Data";
 import SelectControls from "./Select";
-import { getApiEndpoint } from "../../utils/apiConfig";
+import { getApiEndpoint,Logout ,userDate,gates} from "../../utils/apiConfig";
 import "./HomePage.css";
-import { Layout, theme } from "antd"; // removed Button, Space
+import { Layout, theme,Modal } from "antd"; // removed Button, Space
 import { LogoutOutlined } from "@ant-design/icons";
 import axios from "axios";
+import ErrorBoundary from "../ErrorBoundary";
+
+
+
 
 const { Header, Content, Footer } = Layout;
 
 function HomePage({
-  token,
-  status,
-  handleSubscribe,
-  setToken,
+  username ,
+  setUsername ,
   setLoginStatus,
   setStatus,
 }) {
@@ -30,147 +32,21 @@ function HomePage({
   } = theme.useToken();
 
   // Robust logout logic
-  const handleLogout = async () => {
-   await axios.post(getApiEndpoint("/api/logout_mobile"), {
-    username: token,
-  });
-    setToken(null);
-    setLoginStatus(false);
-    setStatus("Enable Push Notifications");
-    localStorage.removeItem("loginStatus");
-    localStorage.removeItem("accessToken");
-    localStorage.removeItem("refreshToken");
-    localStorage.removeItem("role");
-    localStorage.removeItem("username");
-  };
 
-  const fetchFromBackend = async (dates, option) => {
-    const { startDate, endDate } = dates || dateRange;
 
-    // guard: don't call backend when dates are missing -> avoids 400
-    if (!startDate || !endDate) {
-      console.warn(
-        "fetchFromBackend: missing startDate or endDate, skipping request"
-      );
-      return;
-    }
-   setLoading(true);
-    const username = localStorage.getItem("username");
-    const accessToken = localStorage.getItem("accessToken");
-    const refreshToken = localStorage.getItem("refreshToken");
+  
+ const handleLogout = async () => {
+Logout(username,setUsername,setLoginStatus,setStatus)
+};
+const fetchFromBackend = async (dates, option) => {
+  await userDate(option, dates,setLoading,setData);
+}
 
-    try {
-      console.log("Fetching data with:", {
-        startDate,
-        endDate,
-        gate: option || activeLearningOption,
-      });
-      const response = await axios.post(
-        "https://backend.schmidvision.com/api/active_learning_mobile",
-        { startDate, endDate, gate: option || activeLearningOption }, // send option
-        {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-        }
-      );
-
-      if (response.status === 200) {
-        setData(response.data.dailyRecords || []);
-      }
-      setLoading(false); 
-    } catch (error) {
-      if (error.response && error.response.status === 403 && refreshToken) {
-        try {
-          const refreshResponse = await axios.post(
-            "https://backend.schmidvision.com/api/check_reset_elgibility",
-            { username, refreshToken }
-          );
-
-          if (
-            refreshResponse.status === 200 &&
-            refreshResponse.data.accessToken
-          ) {
-            localStorage.setItem(
-              "accessToken",
-              refreshResponse.data.accessToken
-            );
-            return fetchFromBackend(dates); // Retry with new token
-          } else {
-            throw new Error(
-              "Refresh token invalid or missing access token in response."
-            );
-          }
-        } catch (refreshError) {
-          alert("Session expired. Please login again.");
-          // setToken(null);
-          // setLoginStatus(false);
-          // setStatus("Enable Push Notifications");
-          // localStorage.removeItem("loginStatus");
-          // localStorage.removeItem("accessToken");
-          // localStorage.removeItem("refreshToken");
-          // localStorage.removeItem("role");
-          // localStorage.removeItem("username");
-        }
-        setLoading(false); 
-      } else {
-        let message = "❌ An unexpected error occurred";
-        if (error.response) {
-          message = `🚫 Server Error: ${error.response.status}\n${
-            error.response.data?.error || error.response.statusText
-          }`;
-        } else if (error.request) {
-          message = "error: No response from the server.";
-        } else {
-          message = `⚠️ Error: ${error.message}`;
-        }
-        alert(message);
-      }
-    }
-  };
-  // fetch select options from backend (run on mount and when token changes)
+ 
   useEffect(() => {
-    const fetchGateOptions = async () => {
-      console.log("fetchGateOptions called",getApiEndpoint("/api/gates"));
-      try {
-        
-
-        const resp = await axios.post(
-          getApiEndpoint("/api/gates")
-        );
-        console.log("Gate options response:", resp);
-        if (resp.status === 200 && resp.data && resp.data.success) {
-          let gatesRaw = resp.data.gates;
-          if (
-            gatesRaw &&
-            !Array.isArray(gatesRaw) &&
-            typeof gatesRaw === "object"
-          ) {
-            gatesRaw = Object.values(gatesRaw);
-          }
-          const gates = Array.isArray(gatesRaw) ? gatesRaw : [];
-          const opts = gates.map((g) =>
-            typeof g === "string"
-              ? { label: g, value: g }
-              : {
-                  label: g.name || g.label || String(g.id ?? g.value),
-                  value: g.id ?? g.value ?? g.name,
-                }
-          );
-          setGateOptions(opts);
-
-          // Set first gate if not already set
-          if (!activeLearningOption && opts.length > 0) {
-            setActiveLearningOption(opts[0].value);
-          }
-        } else {
-          setGateOptions([]);
-        }
-      } catch (err) {
-        setGateOptions([]);
-      }
-    };
-    fetchGateOptions();
+    gates(setGateOptions,activeLearningOption,setActiveLearningOption,);
+    console.log("Gate Options:", gateOptions);
+    
   }, []);
 
   useEffect(() => {
@@ -208,14 +84,14 @@ function HomePage({
    
     fetchFromBackend(dateRange, val);
   };
-console.log("dddsddd",dateRange);
+
   return (
     <Layout hasSider>
       <Layout>
         <Header className="header">
           <div className="header-left">
             <img src="/user.png" alt="Avatar" className="header-logo" />
-            <span className="header-title">{token.toUpperCase()}</span>
+            <span className="header-title">{username.toUpperCase()}</span>
           </div>
           <button className="logout-icon-btn" onClick={handleLogout}>
             <LogoutOutlined style={{ fontSize: "18px", color: "white" }} />
@@ -231,10 +107,13 @@ console.log("dddsddd",dateRange);
               borderRadius: borderRadiusLG,
             }}
           >
-            <Date
+            <ErrorBoundary>
+                <Date
               fetchFromBackend={fetchFromBackend}
               setDateRange={setDateRange}
             />
+            </ErrorBoundary>
+          
           </div>
 
           {/* pass value and handler so select sends option -> backend with dateRange */}

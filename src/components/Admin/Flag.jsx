@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { getApiEndpoint } from "../../utils/apiConfig";
 import "./Admin.css";
+import {flag } from "../../utils/adminapi";
 
 function Flag() {
   const [items, setItems] = useState([]);
@@ -10,24 +11,7 @@ function Flag() {
 
   const fetchFlagged = async () => {
     setError("");
-    setLoading(true);
-    try {
-      // POST as in your curl example
-      const resp = await axios.post(getApiEndpoint("/flagged_persons"), {});
-      if (resp.data && resp.data.success) {
-        console.log("fetch flagged persons", resp.data);
-        setItems(resp.data.flagged_persons || []);
-      } else {
-        setItems([]);
-        setError("No data returned");
-      }
-    } catch (err) {
-      console.error("fetch flagged persons", err);
-      setError("Failed to load flagged persons");
-      setItems([]);
-    } finally {
-      setLoading(false);
-    }
+    await flag(setItems, setError, setLoading);
   };
 
   useEffect(() => {

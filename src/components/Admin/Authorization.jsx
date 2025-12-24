@@ -3,6 +3,7 @@ import dayjs from "dayjs";
 import axios from "axios";
 import Date from "../Date/Date";
 import { getApiEndpoint } from "../../utils/apiConfig";
+import { unAiuthorize } from "../../utils/adminapi";
 import "./Admin.css";
 
 const Authorization = () => {
@@ -34,18 +35,22 @@ const Authorization = () => {
 
   const fetchPeople = async () => {
     if (!dateRange.startDate || !dateRange.endDate) return;
-    try {
-      setLoading(true);
-      const resp = await axios.get(getApiEndpoint("/api/people"), {
-        params: { startDate: dateRange.startDate, endDate: dateRange.endDate },
-      });
-      setData(extractUnauthorized(resp.data));
-    } catch (err) {
-      console.error("fetch people error", err);
-      setData([]);
-    } finally {
-      setLoading(false);
-    }
+    // try {
+    //   setLoading(true);
+    //   const resp = await axios.get(getApiEndpoint("/api/people"), {
+    //     params: { startDate: dateRange.startDate, endDate: dateRange.endDate },
+    //   });
+    //   setData(extractUnauthorized(resp.data));
+    // } catch (err) {
+    //   console.error("fetch people error", err);
+    //   setData([]);
+    // } finally {
+    //   setLoading(false);
+    // }
+    const startDate = dateRange.startDate;
+    const endDate = dateRange.endDate;
+    unAiuthorize(setError, setData, setLoading, startDate, endDate);
+
   };
 
   useEffect(() => {

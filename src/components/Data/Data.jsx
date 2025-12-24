@@ -1,27 +1,21 @@
 import React, { useState } from "react"; // Import useState hook
 import dayjs from "dayjs";
 import duration from "dayjs/plugin/duration";
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  Tooltip,
-  ResponsiveContainer,
-  CartesianGrid,
-} from "recharts";
+
 import { Card, Button, DatePicker, Select, Spin } from "antd"; // <-- Add Spin
 import { ReloadOutlined } from "@ant-design/icons";
-
+import  Chat from "./chat.jsx";
+import ErrorBoundary from "../ErrorBoundary.jsx";
 import "./Data.css";
+
 const { Option } = Select;
 dayjs.extend(duration);
 
 const Data = ({ data, loading, onRefresh, onOptionChange }) => { // <-- Add loading prop
   const [activeTab, setActiveTab] = useState("events");
-  const [pageIndex, setPageIndex] = useState(0);
+  // const [pageIndex, setPageIndex] = useState(0);
 
-  const itemsPerPage = 5;
+  // const itemsPerPage = 5;
 
   if (loading) {
     return (
@@ -39,6 +33,7 @@ const Data = ({ data, loading, onRefresh, onOptionChange }) => { // <-- Add load
     );
   }
   const chartData = data.map((day) => {
+    
     let totalMinutes = 0;
 
     day.records?.forEach((record) => {
@@ -57,14 +52,6 @@ const Data = ({ data, loading, onRefresh, onOptionChange }) => { // <-- Add load
       duration: totalMinutes,
     };
   });
-
-  // removed invalid handlers that referenced undefined fetchFromBackend/dateRange
-  // when option changes, update local state and trigger parent's refresh if provided
-
-  const paginatedChartData = chartData.slice(
-    pageIndex * itemsPerPage,
-    (pageIndex + 1) * itemsPerPage
-  );
 
   let totalLogins = 0;
   let totalMinutes = 0;
@@ -88,7 +75,7 @@ const Data = ({ data, loading, onRefresh, onOptionChange }) => { // <-- Add load
   });
 
   const totalHours = Math.floor(totalMinutes / 60) || 0;
-  console.log("hfsdfhsdfh", totalHours);
+
   const remainingMinutes = totalMinutes % 60 || 0;
 
   const totalDurationStr = `${totalHours}h ${remainingMinutes}m`;
@@ -274,77 +261,11 @@ const Data = ({ data, loading, onRefresh, onOptionChange }) => { // <-- Add load
             {/* <div className="tab-content"> */}
 
             {chartData.length === 0 ? (
-              <p>No data for insights.</p>
+              <p  className="no-records-message">No data for insights.</p>
             ) : (
               <>
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "center",
-                    marginTop: 10,
-                  }}
-                >
-                  <Button
-                    type="primary"
-                    onClick={() =>
-                      setPageIndex((prev) => Math.max(prev - 1, 0))
-                    }
-                    disabled={pageIndex === 0}
-                    style={{ marginRight: 10 }}
-                  >
-                    Previous
-                  </Button>
-                  <Button
-                    type="primary"
-                    onClick={() =>
-                      setPageIndex((prev) =>
-                        (prev + 1) * itemsPerPage < chartData.length
-                          ? prev + 1
-                          : prev
-                      )
-                    }
-                    disabled={
-                      (pageIndex + 1) * itemsPerPage >= chartData.length
-                    }
-                  >
-                    Next
-                  </Button>
-                </div>
-                <div style={{ width: "100%", height: 300 }}>
-                  <ResponsiveContainer>
-                    <BarChart
-                      data={paginatedChartData}
-                      margin={{ top: 16, right: 16, left: 8, bottom: 8 }}
-                    >
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="date" />
-                      <YAxis
-                        tickFormatter={(min) => {
-                          const hours = Math.floor(min / 60);
-                          const mins = min % 60;
-                          return `${hours}h ${mins}m`;
-                        }}
-                        label={{
-                          value: "Duration",
-                          angle: -90,
-                          position: "insideLeft",
-                        }}
-                      />
-                      <Tooltip
-                        formatter={(min) => {
-                          const h = Math.floor(min / 60);
-                          const m = min % 60;
-                          return `${h}h ${m}m`;
-                        }}
-                      />
-                      <Bar
-                        dataKey="duration"
-                        fill="#2b4e79ff"
-                        name="Total Duration"
-                      />
-                    </BarChart>
-                  </ResponsiveContainer>
-                </div>
+              <ErrorBoundary><Chat chartData={chartData} /></ErrorBoundary>
+             
               </>
             )}
           </div>
