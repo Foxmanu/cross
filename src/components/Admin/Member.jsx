@@ -330,18 +330,53 @@ fetchDoor(setDoorMappings,setSelectedDoor);
   // --- KEEP YOUR ROBUST LOGOUT LOGIC HERE ---
 
   const handleToggleNotification = async (systemId, enabled) => {
+    const  username = localStorage.getItem("username");
+    const accessToken = localStorage.getItem("accessToken");
+    const refreshToken = localStorage.getItem("refreshToken");
     try {
       await axios.post(
         getApiEndpoint("/update_notification_status"),
         { system_id: systemId, enabled },
         {
-          headers: {
-            "Content-Type": "application/json",
-          },
+          headers:{
+            "Authorization": `Bearer ${accessToken}`,
+          }
         }
       );
     } catch (err) {
-      console.error(`❌ Error updating notification for ${systemId}:`, err);
+     if(err.response.status === 401 && refreshToken){
+        try {     
+        const refreshResponse = await axios.post(
+            getApiEndpoint("/api/token/refresh"),
+            { username, refreshToken }
+          );
+          if (
+            refreshResponse.status === 200 &&
+            refreshResponse.data.accessToken
+          ) {
+            localStorage.setItem(
+              "accessToken",
+              refreshResponse.data.accessToken
+            );
+            // Retry the save operation with the new token
+            return handleToggleNotification(systemId, enabled);
+          } else {
+            throw new Error(
+              "Refresh token invalid or missing access token in response."
+            );
+          }
+        } catch (refreshError) {
+          alert("Session expired. Please login again.");
+          setUsername(null);
+          setLoginStatus(false);
+          setStatus("Enable Push Notifications");
+          localStorage.removeItem("loginStatus");
+          localStorage.removeItem("accessToken");
+          localStorage.removeItem("refreshToken");
+          localStorage.removeItem("role");
+          localStorage.removeItem("username");
+        }
+      }
     }
   };
 
