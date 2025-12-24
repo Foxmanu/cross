@@ -219,7 +219,7 @@ function LoginPage({ setUsername, setLoginStatus, handleSubscribe, setRole }) {
           </Button>
         </Form>
         {/* Dev Mode Button */}
-        <Button
+        {/* <Button
           style={{ marginTop: 16, background: "#e0e7ff", color: "#3730a3", fontWeight: 600 }}
           block
           onClick={() => {
@@ -237,7 +237,7 @@ function LoginPage({ setUsername, setLoginStatus, handleSubscribe, setRole }) {
           }}
         >
           Dev Mode (Dummy Login)
-        </Button>
+        </Button> */}
       </div>
     </div>
   );
