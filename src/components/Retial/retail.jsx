@@ -258,7 +258,7 @@ const endDate   = dayjs(dates?.endDate).format("YYYY-MM-DD");
             background: " #f5f6fa",
             borderRadius: borderRadiusLG,
 
-            padding: 12 
+            padding: 12
           }}>
             <select
               className="retail-select"
