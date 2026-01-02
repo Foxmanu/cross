@@ -50,6 +50,7 @@ const Authorization = () => {
     const startDate = dateRange.startDate;
     const endDate = dateRange.endDate;
     unAiuthorize(setError, setData, setLoading, startDate, endDate);
+   
 
   };
 

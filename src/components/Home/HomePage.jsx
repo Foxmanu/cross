@@ -2,7 +2,7 @@ import React, { useState, useEffect, use, act } from "react";
 
 import Date from "../Date/Date";
 import Data from "../Data/Data";
-import SelectControls from "./Select";
+import SelectControls from "./Select.jsx";
 import { getApiEndpoint,Logout ,userDate,gates} from "../../utils/apiConfig";
 import "./HomePage.css";
 import { Layout, theme,Modal } from "antd"; // removed Button, Space
@@ -44,7 +44,7 @@ const fetchFromBackend = async (dates, option) => {
 
  
   useEffect(() => {
-    gates(setGateOptions,activeLearningOption,setActiveLearningOption,);
+    gates(setGateOptions, dateRange, setActiveLearningOption, activeLearningOption, setUsername, setLoginStatus, setStatus);
     console.log("Gate Options:", gateOptions);
     
   }, []);
@@ -86,6 +86,7 @@ const fetchFromBackend = async (dates, option) => {
   };
 
   return (
+   
     <Layout hasSider>
       <Layout>
         <Header className="header">

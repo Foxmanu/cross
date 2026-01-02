@@ -32,13 +32,9 @@ export const Logout = async (username,setUsername,setLoginStatus,setStatus) => {
   }
 
   // Cleanup ALWAYS runs (success or failure)
-  localStorage.removeItem("loginStatus");
-  localStorage.removeItem("accessToken");
-  localStorage.removeItem("refreshToken");
-  localStorage.removeItem("role");
-  localStorage.removeItem("username");
-  localStorage.removeItem("organizationName");
-  localStorage.removeItem("mobile_access_feature");
+localStorage.clear();
+
+
 
   setUsername(null);
   setLoginStatus(false);
@@ -134,7 +130,7 @@ export const userDate = async (option, dates,setLoading,setData) => {
 }
 
 // Fetch gate options from backend and set state
-export const gates = async (setGateOptions,setActiveLearningOption,activeLearningOption) => {
+export const gates = async (setGateOptions,setActiveLearningOption,activeLearningOption,setUsername,setLoginStatus,setStatus) => {
 
      const accessToken = localStorage.getItem("accessToken");
     const refreshToken = localStorage.getItem("refreshToken");
@@ -196,7 +192,7 @@ export const gates = async (setGateOptions,setActiveLearningOption,activeLearnin
               "accessToken",
               refreshResponse.data.accessToken
             );
-            return fetchFromBackend(dates); // Retry with new token
+           return gates(setGateOptions,setActiveLearningOption,activeLearningOption,setUsername,setLoginStatus,setStatus); // Retry with new token
           } else {
             throw new Error(
               "Refresh token invalid or missing access token in response."

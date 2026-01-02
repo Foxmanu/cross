@@ -25,7 +25,14 @@
   /* Above other content */
   overflow: visible;
 }
+.app-content .ant-card .ant-card-body {
+  padding: 12px 16px; /* desired padding */
+}
 
+/* if still overridden, use !important as last resort */
+.app-content .ant-card .ant-card-body {
+  padding: 2px 6px !important;
+}
 .header-left {
   display: flex;
   align-items: center;
@@ -452,6 +459,10 @@
   height: 24px;
 }
 
+.table-wrapper .ant-pagination-options {
+  display: inline-flex !important;
+}
+
 /* Door and Time Card styling */
 .door-card,
 .time-card {
@@ -719,7 +730,7 @@
   }
 
   .search-filter-card {
-    padding: 10px;
+    /* padding: 10px; */
     margin-bottom: 10px;
     border-radius: 8px;
   }
@@ -1090,6 +1101,33 @@
 @media (max-width: 560px) {
   .auth-page {
     padding: 0px;
+  }
+
+  .table-wrapper .ant-pagination-options {
+    display: flex !important;
+
+    justify-content: center;
+
+  }
+
+  .table-wrapper.ant-pagination-options {
+    order: -1;
+    /* 👈 this is the KEY */
+    /* margin-right: 8px;
+    flex-shrink: 0; */
+  }
+
+  /* Prevent wrapping */
+  .table-wrapper .ant-pagination-total-text,
+  .ant-pagination-prev,
+  .ant-pagination-next,
+  .ant-pagination-item {
+    flex-shrink: 0;
+  }
+
+  /* Optional: slightly reduce input width */
+  .table-wrapper .ant-pagination-options-quick-jumper input {
+    width: 1 px;
   }
 
   .auth-card {

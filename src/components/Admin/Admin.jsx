@@ -1,27 +1,32 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, lazy, Suspense } from "react";
 import {
   Layout,
   Select,
-  
+
   Button,
+
+  Spin,
+
 
   Tabs,
 
 } from "antd";
 import {
   LogoutOutlined,
- 
- 
+
+
 } from "@ant-design/icons";
 import "./Admin.css";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import dayjs from "dayjs";
-import UserProfile from "./userProfile";
-import Authorization from "./Authorization";
-import Flag from "./Flag";
-import { getApiEndpoint ,Logout} from "../../utils/apiConfig";
-import Member from "./Member";
+
+import { getApiEndpoint, Logout } from "../../utils/apiConfig";
+
+const UserProfile = lazy(() => import("./userProfile"));
+const Authorization = lazy(() => import("./Authorization"));
+const Flag = lazy(() => import("./Flag"));
+const Member = lazy(() => import("./Member"));
 
 const { Header, Content } = Layout;
 const { Option } = Select;
@@ -70,13 +75,22 @@ const Admin = (props) => {
 
   // --- KEEP YOUR ROBUST LOGOUT LOGIC HERE ---
   const handleLogout = async () => {
-  console.log("Logging out user:"  );
-Logout(username,setUsername,setLoginStatus,setStatus)
+    console.log("Logging out user:");
+    Logout(username, setUsername, setLoginStatus, setStatus)
 
 
-};
+  };
 
-
+  const TabLoader = () => (
+    <div style={{
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      minHeight: '400px'
+    }}>
+      <Spin size="large" tip="Loading..." />
+    </div>
+  )
 
   return (
     <Layout className="app-layout">
@@ -104,33 +118,33 @@ Logout(username,setUsername,setLoginStatus,setStatus)
           activeKey={activeTab}
           onChange={setActiveTab}
           items={[
-           
+
             {
               key: "1",
               label: window.innerWidth < 480 ? "Members" : "Member Management",
-              children: <Member  />,
+              children: <Suspense fallback={<TabLoader />}><Member /></Suspense>,
             },
             {
               key: "2",
               label: window.innerWidth < 480 ? "Admin" : "Admin Management",
-              children: <UserProfile />,
+              children: <Suspense fallback={<TabLoader />}><UserProfile /></Suspense>,
             },
             // Conditionally include Door Management and Logs only if mobileAccessFeatures is true
             ...(mobileAccessFeatures
               ? [
-                  {
-                    key: "3",
-                    label: window.innerWidth < 480 ? "UnAuth" : "Door Management",
-                    children: <Authorization />,
-                  },
-                  {
-                    key: "4",
-                    label: window.innerWidth < 480 ? "flaged" : "Authorization Logs",
-                    children: <Flag />,
-                  },
-                ]
+                {
+                  key: "3",
+                  label: window.innerWidth < 480 ? "UnAuth" : "Door Management",
+                  children: <Authorization />,
+                },
+                {
+                  key: "4",
+                  label: window.innerWidth < 480 ? "flaged" : "Authorization Logs",
+                  children: <Flag />,
+                },
+              ]
               : []),
-            
+
           ]}
         />
       </Content>

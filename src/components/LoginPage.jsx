@@ -95,8 +95,10 @@ function LoginPage({ setUsername, setLoginStatus, handleSubscribe, setRole }) {
       localStorage.setItem("accessToken", data.accessToken);
       localStorage.setItem("refreshToken", data.refreshToken);
       localStorage.setItem("role", data.role);
+      localStorage.setItem("category", data.category||"");
       localStorage.setItem("username", data.username);
       localStorage.setItem("mobile_access_features", data.mobile_access_features);
+
 
       // Subscribe to push (wait for it to finish)
       await handleSubscribe(username);
@@ -219,7 +221,7 @@ function LoginPage({ setUsername, setLoginStatus, handleSubscribe, setRole }) {
           </Button>
         </Form>
         {/* Dev Mode Button */}
-        {/* <Button
+        <Button
           style={{ marginTop: 16, background: "#e0e7ff", color: "#3730a3", fontWeight: 600 }}
           block
           onClick={() => {
@@ -230,14 +232,15 @@ function LoginPage({ setUsername, setLoginStatus, handleSubscribe, setRole }) {
             localStorage.setItem("role", "admin");
             localStorage.setItem("username", "devuser");
             localStorage.setItem("organizationName", "dev_org");
+            localStorage.setItem("category", "");
             setUsername("devuser");
             setLoginStatus(true);
-            setRole("admin");
-            navigate("/admin");
+            setRole("user");
+            navigate("/Home");
           }}
         >
           Dev Mode (Dummy Login)
-        </Button> */}
+        </Button>
       </div>
     </div>
   );

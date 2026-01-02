@@ -10,30 +10,30 @@ const Date = ({ setDateRange }) => {
 
   const computeShortcutForRange = (s, e) => {
     const today = dayjs();
-    if (s.isSame(today.startOf("day")) && e.isSame(today.endOf("day"))) return "today";
+    if (s.isSame(today.startOf("day")) && e.isSame(today.endOf("day"))) return "day";
     if (
       s.isSame(today.subtract(6, "day").startOf("day")) &&
       e.isSame(today.endOf("day"))
     )
-      return "week";
+      return "weekly";
     if (
       s.isSame(today.subtract(29, "day").startOf("day")) &&
       e.isSame(today.endOf("day"))
     )
-      return "month";
+      return "monthly";
     return null;
   };
 
   const handleShortcutClick = (type) => {
     setActiveTab(type);
     const today = dayjs();
-    if (type === "today") {
+    if (type === "day") {
       setStartDate(today.startOf("day"));
       setEndDate(today.endOf("day"));
-    } else if (type === "week") {
+    } else if (type === "weekly") {
       setStartDate(today.subtract(6, "day").startOf("day"));
       setEndDate(today.endOf("day"));
-    } else if (type === "month") {
+    } else if (type === "monthly") {
       setStartDate(today.subtract(29, "day").startOf("day"));
       setEndDate(today.endOf("day"));
     }
@@ -60,22 +60,22 @@ const Date = ({ setDateRange }) => {
       <div className="custom-card shortcut-tabs-card">
         <div className="shortcut-tabs">
           <button
-            className={`shortcut-tab${activeTab === "today" ? " active" : ""}`}
-            onClick={() => handleShortcutClick("today")}
+            className={`shortcut-tab${activeTab === "day" ? " active" : ""}`}
+            onClick={() => handleShortcutClick("day")}
             type="button"
           >
             Today
           </button>
           <button
-            className={`shortcut-tab${activeTab === "week" ? " active" : ""}`}
-            onClick={() => handleShortcutClick("week")}
+            className={`shortcut-tab${activeTab === "weekly" ? " active" : ""}`}
+            onClick={() => handleShortcutClick("weekly")}
             type="button"
           >
             7 Days
           </button>
           <button
-            className={`shortcut-tab${activeTab === "month" ? " active" : ""}`}
-            onClick={() => handleShortcutClick("month")}
+            className={`shortcut-tab${activeTab === "monthly" ? " active" : ""}`}
+            onClick={() => handleShortcutClick("monthly")}
             type="button"
           >
             30 Days

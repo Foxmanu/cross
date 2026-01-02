@@ -10,9 +10,7 @@ import {
   Input,
   Tabs,
   Drawer,
-  Space,
-  Popover,
-  Alert,
+  Spin,
 } from "antd";
 import {
   LogoutOutlined,
@@ -27,7 +25,7 @@ import { useNavigate } from "react-router-dom";
 import dayjs from "dayjs";
 
 import { getApiEndpoint } from "../../utils/apiConfig";
-import { membersData,fetchDoor,departmentTeam } from "../../utils/adminapi"; 
+import { membersData, fetchDoor, departmentTeam } from "../../utils/adminapi";
 
 
 const { Option } = Select;
@@ -55,6 +53,7 @@ const Mem = () => {
   const [currentPage, setCurrentPage] = useState(1); // Track current page
   const [pageSize, setPageSize] = useState(10); // Track page size
   const [totalMembers, setTotalMembers] = useState(0); // Track total count
+  const [loading, setLoading] = useState(true); // Loading state for initial data fetch
 
   // Add pending filter states
   const [pendingDept, setPendingDept] = useState(selectedDept);
@@ -63,105 +62,99 @@ const Mem = () => {
   const [pendingStartDate, setPendingStartDate] = useState(startDate);
   const [pendingEndDate, setPendingEndDate] = useState(endDate);
 
+  const [isInitialized, setIsInitialized] = useState(false); // Track if initial load is complete
+
+
+  console.log(gateOptions, "gateOptions", pendingGate,);
+  // Consolidated initial data fetch - runs once on mount
   useEffect(() => {
-    fetchHierarchyData();
-    fetchDoorMappings();
-
-  
-  }, []);
-
-  // Add this effect to fetch gate options
-  useEffect(() => {
-    const fetchGateOptions = async () => {
-     const accessToken = localStorage.getItem("accessToken");
-    const refreshToken = localStorage.getItem("refreshToken");
-        try {
-          
-  
-        const resp = await axios.post(
-  getApiEndpoint("/api/gates"),
-  {}, // empty body
-  {
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
-    },
-  }
-);
-
-        if (resp.status === 200 && resp.data && resp.data.success) {
-          let gatesRaw = resp.data.gates;
-          if (
-            gatesRaw &&
-            !Array.isArray(gatesRaw) &&
-            typeof gatesRaw === "object"
-          ) {
-            gatesRaw = Object.values(gatesRaw);
-          }
-          const gates = Array.isArray(gatesRaw) ? gatesRaw : [];
-          const opts = gates.map((g) =>
-            typeof g === "string"
-              ? { label: g, value: g }
-              : {
-                label: g.name || g.label || String(g.id ?? g.value),
-                value: g.id ?? g.value ?? g.name,
+    const loadInitialData = async () => {
+      setLoading(true);
+      try {
+        // Fetch gate options (inline for simplicity)
+        const fetchGateOptions = async () => {
+          const accessToken = localStorage.getItem("accessToken");
+          try {
+            const resp = await axios.post(
+              getApiEndpoint("/api/gates"),
+              {},
+              {
+                headers: {
+                  Authorization: `Bearer ${accessToken}`,
+                },
               }
-          );
-          setGateOptions(opts);
-      
-          if (opts.length > 0) {
-            setSelectedGate(opts[0].value);
+            );
+
+            if (resp.status === 200 && resp.data && resp.data.success) {
+              let gatesRaw = resp.data.gates;
+              if (
+                gatesRaw &&
+                !Array.isArray(gatesRaw) &&
+                typeof gatesRaw === "object"
+              ) {
+                gatesRaw = Object.values(gatesRaw);
+              }
+              const gates = Array.isArray(gatesRaw) ? gatesRaw : [];
+              const opts = gates.map((g) =>
+                typeof g === "string"
+                  ? { label: g, value: g }
+                  : {
+                    label: g.name || g.label || String(g.id ?? g.value),
+                    value: g.id ?? g.value ?? g.name,
+                  }
+              );
+              setGateOptions(opts);
+
+              console.log(opts[0].value, "opts");
+
+              if (opts.length > 0) {
+                const firstGateValue = opts[0].value;
+                setSelectedGate(firstGateValue);
+                setPendingGate(firstGateValue); // ✅ Set pending gate to first option
+                return firstGateValue; // Return selected gate for fetchMembers
+              }
+            }
+          } catch (err) {
+            console.error("❌ Error fetching gate options:", err);
+            setGateOptions([]);
           }
-        }
+          return null;
+        };
+
+        // Run all independent API calls in parallel
+        const [hierarchyResult, , selectedGateValue] = await Promise.all([
+          departmentTeam(setHierarchyData, setSelectedDept, setSelectedTeam),
+          fetchDoor(setDoorMappings, setSelectedDoor),
+          fetchGateOptions(),
+        ]);
+
+        // Now fetch members with the returned values (only ONCE)
+        const { firstDept, firstTeam } = hierarchyResult || {};
+        const deptToFetch = firstTeam === "all" ? null : firstDept;
+        const teamToFetch = firstTeam === "all" ? null : firstTeam;
+
+        await membersData(
+          deptToFetch,
+          teamToFetch,
+          startDate,
+          endDate,
+          selectedGateValue,
+          1,
+          pageSize,
+          setMembers,
+          setTotalMembers
+        );
+
+        setIsInitialized(true); // Mark initial load as complete
       } catch (err) {
-          if (err.response.status === 401 && refreshToken)
-         try {
-          const refreshResponse = await axios.post(
-             
-            getApiEndpoint("/api/token/refresh"),
-            { username, refreshToken }
-          );
+        console.error("❌ Error during initial data load:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-          if (
-            refreshResponse.status === 200 &&
-            refreshResponse.data.accessToken
-          ) {
-            localStorage.setItem(
-              "accessToken",
-              refreshResponse.data.accessToken
-            );
-            return fetchFromBackend(dates); // Retry with new token
-          } else {
-            throw new Error(
-              "Refresh token invalid or missing access token in response."
-            );
-          }
-        } catch (refreshError) {
-          alert("Session expired. Please login again.");
-          setUsername(null);
-          setLoginStatus(false);
-          setStatus("Enable Push Notifications");
-          localStorage.removeItem("loginStatus");
-          localStorage.removeItem("accessToken");
-          localStorage.removeItem("refreshToken");
-          localStorage.removeItem("role");
-          localStorage.removeItem("username");
-        }
-          console.error("❌ Error fetching gate options:", err);
-          setGateOptions([]);
-        }
-      };
-  
-      fetchGateOptions();
+    loadInitialData();
   }, []);
-
-  const fetchHierarchyData = async () => {
-    departmentTeam(setHierarchyData,setSelectedDept,setSelectedTeam,fetchMembers,startDate,endDate);
-    
-  };
-
-  const fetchDoorMappings = async () => {
-fetchDoor(setDoorMappings,setSelectedDoor);
-  };
 
   // Add these before the return statement
   const handleEditClick = () => {
@@ -171,7 +164,7 @@ fetchDoor(setDoorMappings,setSelectedDoor);
 
   const handleSaveTime = async () => {
     if (!selectedDoor) return;
-    const  username = localStorage.getItem("username");
+    const username = localStorage.getItem("username");
     const accessToken = localStorage.getItem("accessToken");
     const refreshToken = localStorage.getItem("refreshToken");
 
@@ -201,9 +194,9 @@ fetchDoor(setDoorMappings,setSelectedDoor);
       setSelectedDoor((prev) => ({ ...prev, unlock_time: editTime }));
       setIsEditingTime(false);
     } catch (err) {
-   if(err.response.status === 401 && refreshToken){
-        try {     
-        const refreshResponse = await axios.post(     
+      if (err.response?.status === 401 && refreshToken) {
+        try {
+          const refreshResponse = await axios.post(
             getApiEndpoint("/api/token/refresh"),
             { username, refreshToken }
           );
@@ -224,9 +217,6 @@ fetchDoor(setDoorMappings,setSelectedDoor);
           }
         } catch (refreshError) {
           alert("Session expired. Please login again.");
-        
-          setLoginStatus(false);
-          setStatus("Enable Push Notifications");
           localStorage.removeItem("loginStatus");
           localStorage.removeItem("accessToken");
           localStorage.removeItem("refreshToken");
@@ -240,9 +230,6 @@ fetchDoor(setDoorMappings,setSelectedDoor);
 
 
 
-;
-
-
   // Update fetchMembers to accept page and limit
   const fetchMembers = async (
     department,
@@ -253,65 +240,7 @@ fetchDoor(setDoorMappings,setSelectedDoor);
     page = currentPage,
     limit = pageSize
   ) => {
-    membersData(department,team,start,end,gate,page,limit,setMembers,setTotalMembers);
-    // console.log("Fetching members with111:", {
-    //   department,
-    //   team,
-    //   startDate: start.format("YYYY-MM-DD"),
-    //   endDate: end.format("YYYY-MM-DD"),
-    //   gate,
-    //   page,
-    //   limit,
-    // });
-    // const deptToSend = !department || department === null ? undefined : department;
-    // const teamToSend = !team || team === null ? undefined : team;
-    // const gateToSend = !gate || gate === null ? undefined : gate;
-
-
-    // console.log("Fetching members with:", {
-    //   department: deptToSend,
-    //   team: teamToSend,
-    //   startDate: start.format("YYYY-MM-DD"),
-    //   endDate: end.format("YYYY-MM-DD"),
-    //   gate: gateToSend,
-    //   page,
-    //   limit,
-    // });
-    // try {
-    //   const response = await axios.post(
-    //     getApiEndpoint("/get_department_team_members"),
-    //     {
-    //       department: deptToSend,
-    //       team: teamToSend,
-    //       startDate: start.format("YYYY-MM-DD"),
-    //       endDate: end.format("YYYY-MM-DD"),
-    //       gate: gateToSend,
-    //       page, // <-- send page
-    //       limit, // <-- send limit
-    //     },
-    //     {
-    //       headers: {
-    //         "Content-Type": "application/json",
-    //       },
-    //     }
-    //   );
-    //   console.log(response.data, "members response");
-    //   if (response.status === 200) {
-    //     setMembers(
-    //       response.data.data.map((member, index) => ({
-    //         key: index,
-    //         name: member.name,
-    //         enabled: member.admin_monitor,
-    //         averageStay: member.averageDwellTime,
-    //         systemId: member.system_id,
-    //         assignedGate: member.assigned_gate || undefined,
-    //       }))
-    //     );
-    //     setTotalMembers(response.data.totalRegisteredPersons || 0); // <-- set total count from backend
-    //   }
-    // } catch (err) {
-    //   console.error("❌ Error fetching members:", err);
-    // }
+    membersData(department, team, start, end, gate, page, limit, setMembers, setTotalMembers);
 
 
   };
@@ -321,16 +250,18 @@ fetchDoor(setDoorMappings,setSelectedDoor);
     setCurrentPage(1);
   }, [selectedDept, selectedTeam, selectedGate, searchText, startDate, endDate]);
 
-  // Fetch members when page or pageSize changes
+  // Fetch members when page or pageSize changes (only after initial load)
   useEffect(() => {
-    fetchMembers(selectedDept, selectedTeam, startDate, endDate, selectedGate, currentPage, pageSize);
+    if (isInitialized) {
+      fetchMembers(selectedDept, selectedTeam, startDate, endDate, selectedGate, currentPage, pageSize);
+    }
     // eslint-disable-next-line
-  }, [currentPage, pageSize]);
+  }, [currentPage, pageSize, isInitialized]);
 
   // --- KEEP YOUR ROBUST LOGOUT LOGIC HERE ---
 
   const handleToggleNotification = async (systemId, enabled) => {
-    const  username = localStorage.getItem("username");
+    const username = localStorage.getItem("username");
     const accessToken = localStorage.getItem("accessToken");
     const refreshToken = localStorage.getItem("refreshToken");
     try {
@@ -338,15 +269,15 @@ fetchDoor(setDoorMappings,setSelectedDoor);
         getApiEndpoint("/update_notification_status"),
         { system_id: systemId, enabled },
         {
-          headers:{
+          headers: {
             "Authorization": `Bearer ${accessToken}`,
           }
         }
       );
     } catch (err) {
-     if(err.response.status === 401 && refreshToken){
-        try {     
-        const refreshResponse = await axios.post(
+      if (err.response?.status === 401 && refreshToken) {
+        try {
+          const refreshResponse = await axios.post(
             getApiEndpoint("/api/token/refresh"),
             { username, refreshToken }
           );
@@ -367,9 +298,6 @@ fetchDoor(setDoorMappings,setSelectedDoor);
           }
         } catch (refreshError) {
           alert("Session expired. Please login again.");
-          setUsername(null);
-          setLoginStatus(false);
-          setStatus("Enable Push Notifications");
           localStorage.removeItem("loginStatus");
           localStorage.removeItem("accessToken");
           localStorage.removeItem("refreshToken");
@@ -377,6 +305,7 @@ fetchDoor(setDoorMappings,setSelectedDoor);
           localStorage.removeItem("username");
         }
       }
+      console.error("❌ Error toggling notification:", err);
     }
   };
 
@@ -394,6 +323,11 @@ fetchDoor(setDoorMappings,setSelectedDoor);
       !selectedGateFilter || member.assignedGate === selectedGateFilter;
     return matchesSearch && matchesGate;
   });
+
+  const pageSizeOptions = Array.from(
+    { length: Math.ceil(totalMembers / 10) },
+    (_, i) => String((i + 1) * 10)
+  );
 
   // Update the columns definition
   const columns = [
@@ -639,29 +573,33 @@ fetchDoor(setDoorMappings,setSelectedDoor);
         </div>
       </Drawer>
 
-      <div className="table-wrapper">
-        <Table
-          dataSource={filteredMembers}
-          columns={columns}
-          pagination={{
-            current: currentPage,
-            pageSize: pageSize,
-            total: totalMembers,
-            showSizeChanger: true,
-            pageSizeOptions: ["10", "20", "50"],
-            showQuickJumper: true,
-            showTotal: (total, range) =>
-              `${range[0]}-${range[1]} of ${total} items`,
-            onChange: (page, size) => {
-              setCurrentPage(page);
-              setPageSize(size);
-            },
-          }}
-          bordered={true}
-          size="small"
-          scroll={{ x: true }}
-        />
-      </div>
+      <Spin spinning={loading} tip="Loading members..." size="large">
+        <div className="table-wrapper">
+          <Table
+            dataSource={filteredMembers}
+            columns={columns}
+            pagination={{
+              current: currentPage,
+              pageSize: pageSize,
+              total: totalMembers,
+              showSizeChanger: true,
+              showLessItems: true,
+              responsive: true,
+              pageSizeOptions: pageSizeOptions,
+              showQuickJumper: false,
+              showTotal: (total, range) =>
+                `${range[0]}-${range[1]} of ${total} `,
+              onChange: (page, size) => {
+                setCurrentPage(page);
+                setPageSize(size);
+              },
+            }}
+            bordered={true}
+            size="small"
+            scroll={{ x: true }}
+          />
+        </div>
+      </Spin>
     </>
   )
 }
