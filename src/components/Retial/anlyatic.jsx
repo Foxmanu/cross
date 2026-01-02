@@ -77,9 +77,9 @@ const Analytics = ({ analyticsData, loading, selectedGate }) => {
                         vs {stats.previousTotalVisitors || 0} prev. period
                     </span>
                 </div>
-                <div className="stat-gate">
+                {/* <div className="stat-gate">
                     Gate: {selectedGate === 'all' ? 'All Gates' : selectedGate}
-                </div>
+                </div> */}
             </div>
 
             {/* Average Dwell Time Card */}
@@ -100,9 +100,9 @@ const Analytics = ({ analyticsData, loading, selectedGate }) => {
                         vs {stats.previousAverageDwellTime || '0 hrs 0 mins 0 secs'} prev.
                     </span>
                 </div>
-                <div className="stat-gate">
+                {/* <div className="stat-gate">
                     Gate: {selectedGate === 'all' ? 'All Gates' : selectedGate}
-                </div>
+                </div> */}
             </div>
 
             {/* Chart / visualization */}

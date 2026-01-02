@@ -101,6 +101,7 @@
   display: flex;
   align-items: center;
   margin-bottom: 12px;
+  justify-content: center;
 }
 
 .stat-icon {
@@ -130,7 +131,7 @@
 }
 
 .stat-footer {
-  display: flex;
+  /* display: flex; */
   align-items: center;
   font-size: 13px;
   color: #666;

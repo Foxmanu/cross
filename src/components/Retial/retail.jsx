@@ -62,7 +62,7 @@ const endDate   = dayjs(dates?.endDate).format("YYYY-MM-DD");
         {
           startDate: startDate,
           endDate: endDate,
-          gate: gate || "all",
+          gate:  "all",
           viewType: viewType,
         },
         {
@@ -141,85 +141,85 @@ const endDate   = dayjs(dates?.endDate).format("YYYY-MM-DD");
     Logout(username, setUsername, setLoginStatus, setStatus);
   };
 
-  useEffect(() => {
-    const fetchGateOptions = async () => {
-      setLoading(true);
-      try {
-        const accessToken = localStorage.getItem("accessToken");
+  // useEffect(() => {
+  //   const fetchGateOptions = async () => {
+  //     setLoading(true);
+  //     try {
+  //       const accessToken = localStorage.getItem("accessToken");
 
-        const resp = await axios.post(
-          getApiEndpoint("/api/gates"),
-          {},
-          {
-            headers: {
-              Authorization: `Bearer ${accessToken}`,
-            },
-          }
-        );
+  //       const resp = await axios.post(
+  //         getApiEndpoint("/api/gates"),
+  //         {},
+  //         {
+  //           headers: {
+  //             Authorization: `Bearer ${accessToken}`,
+  //           },
+  //         }
+  //       );
 
-        if (resp.status === 200 && resp.data?.success) {
-          let gatesRaw = resp.data.gates;
+  //       if (resp.status === 200 && resp.data?.success) {
+  //         let gatesRaw = resp.data.gates;
 
-          if (!Array.isArray(gatesRaw) && typeof gatesRaw === "object") {
-            gatesRaw = Object.values(gatesRaw);
-          }
+  //         if (!Array.isArray(gatesRaw) && typeof gatesRaw === "object") {
+  //           gatesRaw = Object.values(gatesRaw);
+  //         }
 
-          const opts = (gatesRaw || []).map((g) =>
-            typeof g === "string"
-              ? { label: g, value: g }
-              : {
-                label: g.name || g.label || String(g.id),
-                value: g.id ?? g.value ?? g.name,
-              }
-          );
+  //         const opts = (gatesRaw || []).map((g) =>
+  //           typeof g === "string"
+  //             ? { label: g, value: g }
+  //             : {
+  //               label: g.name || g.label || String(g.id),
+  //               value: g.id ?? g.value ?? g.name,
+  //             }
+  //         );
 
-          setGateOptions(opts);
+  //         setGateOptions(opts);
 
-          if (opts.length > 0) {
-            setSelectedGate(opts[0].value);
-          }
-        }
-      } catch (err) {
-        if (err.response.status === 401 && refreshToken)
-         try {
-          const refreshResponse = await axios.post(
+  //         if (opts.length > 0) {
+  //           setSelectedGate(opts[0].value);
+  //         }
+  //       }
+  //     } catch (err) {
+  //       if (err.response.status === 401 && refreshToken)
+  //        try {
+  //         const refreshResponse = await axios.post(
              
-            getApiEndpoint("/api/token/refresh"),
-            { username, refreshToken }
-          );
+  //           getApiEndpoint("/api/token/refresh"),
+  //           { username, refreshToken }
+  //         );
 
-          if (
-            refreshResponse.status === 200 &&
-            refreshResponse.data.accessToken
-          ) {
-            localStorage.setItem(
-              "accessToken",
-              refreshResponse.data.accessToken
-            );
-            return fetchGateOptions(); // Retry with new token
-          } else {
-            throw new Error(
-              "Refresh token invalid or missing access token in response."
-            );
-          }
-        } catch (refreshError) {
-          alert("Session expired. Please login again.");
-          setUsername(null);
-          setLoginStatus(false);
-          setStatus("Enable Push Notifications");
-          localStorage.removeItem("loginStatus");
-          localStorage.removeItem("accessToken");
-          localStorage.removeItem("refreshToken");
-          localStorage.removeItem("role");
-          localStorage.removeItem("username");
-        }
-          console.error("❌ Error fetching gate options:", err);
-          setGateOptions([]);
-        }
-    };
+  //         if (
+  //           refreshResponse.status === 200 &&
+  //           refreshResponse.data.accessToken
+  //         ) {
+  //           localStorage.setItem(
+  //             "accessToken",
+  //             refreshResponse.data.accessToken
+  //           );
+  //           return fetchGateOptions(); // Retry with new token
+  //         } else {
+  //           throw new Error(
+  //             "Refresh token invalid or missing access token in response."
+  //           );
+  //         }
+  //       } catch (refreshError) {
+  //         alert("Session expired. Please login again.");
+  //         setUsername(null);
+  //         setLoginStatus(false);
+  //         setStatus("Enable Push Notifications");
+  //         localStorage.removeItem("loginStatus");
+  //         localStorage.removeItem("accessToken");
+  //         localStorage.removeItem("refreshToken");
+  //         localStorage.removeItem("role");
+  //         localStorage.removeItem("username");
+  //       }
+  //         console.error("❌ Error fetching gate options:", err);
+  //         setGateOptions([]);
+  //       }
+  //   };
 
-    fetchGateOptions();
-  }, []);
+  //   fetchGateOptions();
+  // }, []);
   useEffect(() => {
     if (dateRange?.startDate && dateRange?.endDate) {
       fetchFromBackend(dateRange, selectedGate);
@@ -252,7 +252,7 @@ const endDate   = dayjs(dates?.endDate).format("YYYY-MM-DD");
             setDateRange={setDateRange}
             loading={loading}
           />
-          <div style={{
+          {/* <div style={{
             textAlign: "center",
             paddingTop: 0,
             background: " #f5f6fa",
@@ -277,7 +277,7 @@ const endDate   = dayjs(dates?.endDate).format("YYYY-MM-DD");
                 </option>
               ))}
             </select>
-          </div>
+          </div> */}
 <div style={{  textAlign: "center",
             paddingTop: 0,
             background: " #f5f6fa",
