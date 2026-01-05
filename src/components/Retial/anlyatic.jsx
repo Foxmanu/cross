@@ -89,7 +89,7 @@ const Analytics = ({ analyticsData, loading, selectedGate }) => {
                     <h3 className="stat-title">Average Dwell Time</h3>
                 </div>
                 <div className="stat-value-time">
-                    {stats.averageDwellTime || '0 hrs 0 mins 0 secs'}
+                    {stats.averageDwellTime || '0 hrs 0 mins 0 secs'}                                                                                                                                                                                                               
                 </div>
                 <div className="stat-footer">
                     <span className={`stat-growth ${stats.dwellTimeTrend || ''}`}>

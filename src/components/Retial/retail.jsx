@@ -26,6 +26,7 @@ function retail({
   const [gateOptions, setGateOptions] = useState([]);
   const [selectedGate, setSelectedGate] = useState("all");
   const [analyticsData, setAnalyticsData] = useState(null);
+  const [modal, contextHolder] = Modal.useModal();
 
 
 
@@ -36,15 +37,15 @@ function retail({
   const fetchFromBackend = async (dates, option) => {
 
     setLoading(true);
-   const startDate = dayjs(dates?.startDate).format("YYYY-MM-DD");
-const endDate   = dayjs(dates?.endDate).format("YYYY-MM-DD");
+    const startDate = dayjs(dates?.startDate).format("YYYY-MM-DD");
+    const endDate = dayjs(dates?.endDate).format("YYYY-MM-DD");
     const gate = option || selectedGate || "all";
     // prefer a viewType sent by Date component (e.g. "monthly","daily","weekly")
     const viewType = dates?.shortcut || dates?.viewType || "daily";
 
 
-    console.log("Formatted Dates:", { startDate, endDate ,viewType, gate});
-    
+    console.log("Formatted Dates:", { startDate, endDate, viewType, gate });
+
 
 
     if (!startDate || !endDate) {
@@ -62,7 +63,7 @@ const endDate   = dayjs(dates?.endDate).format("YYYY-MM-DD");
         {
           startDate: startDate,
           endDate: endDate,
-          gate:  "all",
+          gate: "all",
           viewType: viewType,
         },
         {
@@ -83,10 +84,10 @@ const endDate   = dayjs(dates?.endDate).format("YYYY-MM-DD");
         setAnalyticsData(null);
       }
     } catch (error) {
-  if (error.response.status === 401 && error.response.status === 403 && refreshToken) {
+      if (error.response.status === 401 && error.response.status === 403 && refreshToken) {
         try {
           const refreshResponse = await axios.post(
-             
+
             getApiEndpoint("/api/token/refresh"),
             { username, refreshToken }
           );
@@ -116,13 +117,12 @@ const endDate   = dayjs(dates?.endDate).format("YYYY-MM-DD");
           localStorage.removeItem("role");
           localStorage.removeItem("username");
         }
-        setLoading(false); 
+        setLoading(false);
       } else {
         let message = "❌ An unexpected error occurred";
         if (error.response) {
-          message = `🚫 Server Error: ${error.response.status}\n${
-            error.response.data?.error || error.response.statusText
-          }`;
+          message = `🚫 Server Error: ${error.response.status}\n${error.response.data?.error || error.response.statusText
+            }`;
         } else if (error.request) {
           message = "error: No response from the server.";
         } else {
@@ -140,6 +140,20 @@ const endDate   = dayjs(dates?.endDate).format("YYYY-MM-DD");
     console.log("Logging out user:")
     Logout(username, setUsername, setLoginStatus, setStatus);
   };
+
+
+  const confirmLogout = () => {
+    modal.confirm({
+
+      title: "Confirm Logout",
+      content: "Are you sure you want to log out?",
+      okText: "Yes",
+      cancelText: "No",
+      zIndex: 10000,
+      onOk: handleLogout,
+    });
+
+  }
 
   // useEffect(() => {
   //   const fetchGateOptions = async () => {
@@ -183,7 +197,7 @@ const endDate   = dayjs(dates?.endDate).format("YYYY-MM-DD");
   //       if (err.response.status === 401 && refreshToken)
   //        try {
   //         const refreshResponse = await axios.post(
-             
+
   //           getApiEndpoint("/api/token/refresh"),
   //           { username, refreshToken }
   //         );
@@ -228,13 +242,14 @@ const endDate   = dayjs(dates?.endDate).format("YYYY-MM-DD");
 
   return (
     <Layout>
+      {contextHolder}
       <Header className="header">
         <div className="header-left">
           <img src="/user.png" alt="Avatar" className="header-logo" />
-            <span className="header-title">{username.toUpperCase()}</span>
+          <span className="header-title">{username.toUpperCase()}</span>
         </div>
- 
-        <button className="logout-icon-btn" onClick={handleLogout}>
+
+        <button className="logout-icon-btn" onClick={confirmLogout}>
           <LogoutOutlined style={{ fontSize: "18px", color: "white" }} />
         </button>
       </Header>
@@ -278,21 +293,23 @@ const endDate   = dayjs(dates?.endDate).format("YYYY-MM-DD");
               ))}
             </select>
           </div> */}
-<div style={{  textAlign: "center",
+          <div style={{
+            textAlign: "center",
             paddingTop: 0,
             background: " #f5f6fa",
             borderRadius: borderRadiusLG,
 
-            padding: 12 }}>
-    <Analytics
-            analyticsData={analyticsData}
-            loading={loading}
-            selectedGate={selectedGate}
-          />
+            padding: 12
+          }}>
+            <Analytics
+              analyticsData={analyticsData}
+              loading={loading}
+              selectedGate={selectedGate}
+            />
 
-</div>
+          </div>
           {/* Analytics Component */}
-        
+
 
         </div>
       </Content>

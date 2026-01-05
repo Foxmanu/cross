@@ -3,9 +3,9 @@ import React, { useState, useEffect, use, act } from "react";
 import Date from "../Date/Date";
 import Data from "../Data/Data";
 import SelectControls from "./Select.jsx";
-import { getApiEndpoint,Logout ,userDate,gates} from "../../utils/apiConfig";
+import { getApiEndpoint, Logout, userDate, gates } from "../../utils/apiConfig";
 import "./HomePage.css";
-import { Layout, theme,Modal } from "antd"; // removed Button, Space
+import { Layout, theme, Modal } from "antd"; 
 import { LogoutOutlined } from "@ant-design/icons";
 import axios from "axios";
 import ErrorBoundary from "../ErrorBoundary";
@@ -16,8 +16,8 @@ import ErrorBoundary from "../ErrorBoundary";
 const { Header, Content, Footer } = Layout;
 
 function HomePage({
-  username ,
-  setUsername ,
+  username,
+  setUsername,
   setLoginStatus,
   setStatus,
 }) {
@@ -30,23 +30,37 @@ function HomePage({
   const {
     token: { borderRadiusLG },
   } = theme.useToken();
+  const [modal, contextHolder] = Modal.useModal();
 
   // Robust logout logic
 
+  const handleLogout = async () => {
+    try {
+      await Logout(username, setUsername, setLoginStatus, setStatus);
+    } catch (err) {
+      console.error("Logout error:", err);
+    }
+  };
 
-  
- const handleLogout = async () => {
-Logout(username,setUsername,setLoginStatus,setStatus)
-};
-const fetchFromBackend = async (dates, option) => {
-  await userDate(option, dates,setLoading,setData);
-}
+  const confirmLogout = () => {
+    modal.confirm({
+      title: "Confirm Logout",
+      content: "Are you sure you want to log out?",
+      okText: "Yes",
+      cancelText: "No",
+      zIndex: 10000,
+      onOk: handleLogout,
+    });
+  };
+  const fetchFromBackend = async (dates, option) => {
+    await userDate(option, dates, setLoading, setData);
+  }
 
- 
+
   useEffect(() => {
     gates(setGateOptions, dateRange, setActiveLearningOption, activeLearningOption, setUsername, setLoginStatus, setStatus);
     console.log("Gate Options:", gateOptions);
-    
+
   }, []);
 
   useEffect(() => {
@@ -81,20 +95,21 @@ const fetchFromBackend = async (dates, option) => {
   // handler called when SelectControls changes
   const handleSelectChange = (val) => {
     setActiveLearningOption(val);
-   
+
     fetchFromBackend(dateRange, val);
   };
 
   return (
-   
+
     <Layout hasSider>
+      {contextHolder}
       <Layout>
         <Header className="header">
           <div className="header-left">
             <img src="/user.png" alt="Avatar" className="header-logo" />
             <span className="header-title">{username.toUpperCase()}</span>
           </div>
-          <button className="logout-icon-btn" onClick={handleLogout}>
+          <button className="logout-icon-btn" onClick={confirmLogout}>
             <LogoutOutlined style={{ fontSize: "18px", color: "white" }} />
           </button>
         </Header>
@@ -109,12 +124,12 @@ const fetchFromBackend = async (dates, option) => {
             }}
           >
             <ErrorBoundary>
-                <Date
-              fetchFromBackend={fetchFromBackend}
-              setDateRange={setDateRange}
-            />
+              <Date
+                fetchFromBackend={fetchFromBackend}
+                setDateRange={setDateRange}
+              />
             </ErrorBoundary>
-          
+
           </div>
 
           {/* pass value and handler so select sends option -> backend with dateRange */}
@@ -144,7 +159,7 @@ const fetchFromBackend = async (dates, option) => {
           >
             <Data
               data={data}
-              loading={loading} 
+              loading={loading}
               onRefresh={() =>
                 fetchFromBackend(dateRange, activeLearningOption)
               }

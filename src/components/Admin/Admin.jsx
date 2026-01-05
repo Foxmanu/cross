@@ -6,7 +6,7 @@ import {
   Button,
 
   Spin,
-
+  Modal,
 
   Tabs,
 
@@ -41,6 +41,7 @@ const Admin = (props) => {
   } = props;
   const [activeTab, setActiveTab] = useState("1"); // <-- Add this line
   const navigate = useNavigate();
+  const [modal, contextHolder] = Modal.useModal();
 
   // read mobile access flag from localStorage (fallback false)
   const [mobileAccessFeatures, setMobileAccessFeatures] = useState(() => {
@@ -81,6 +82,17 @@ const Admin = (props) => {
 
   };
 
+  const confirmLogout = () => {
+    modal.confirm({
+      title: "Confirm Logout",
+      content: "Are you sure you want to log out?",
+      okText: "Yes",
+      cancelText: "No",
+      zIndex: 10000,
+      onOk: handleLogout,
+    });
+  };
+
   const TabLoader = () => (
     <div style={{
       display: 'flex',
@@ -94,6 +106,7 @@ const Admin = (props) => {
 
   return (
     <Layout className="app-layout">
+      {contextHolder}
       <Header className="app-header">
         <div className="header-left">
           <img src="/user.png" alt="Avatar" />
@@ -108,7 +121,7 @@ const Admin = (props) => {
             icon={
               <LogoutOutlined style={{ fontSize: "20px", color: "white" }} />
             }
-            onClick={handleLogout}
+            onClick={confirmLogout}
           />
         </div>
       </Header>
