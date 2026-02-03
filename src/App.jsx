@@ -61,7 +61,7 @@ function App() {
         </BrowserRouter>
         <ToastContainer
           position="top-right"
-          autoClose={4000}
+          autoClose={3000}
           hideProgressBar={true}
           limit={1} // Only one toast visible at a time
         />

@@ -78,9 +78,10 @@ const Chat = ({ chartData }) => {
             />
             <Tooltip
               formatter={(min) => {
-                const h = Math.floor(min / 60);
-                const m = min % 60;
-                return `${h}h ${m}m`;
+                const h = Math.floor(min / 3600);
+                const m = Math.floor((min % 3600) / 60);
+                const s = min % 60;
+                return `${h}h ${m}m ${s}s`;
               }}
             />
             <Bar

@@ -5,6 +5,7 @@ import { UserOutlined, LockOutlined, BellOutlined, TeamOutlined } from "@ant-des
 import { useNavigate } from "react-router-dom";
 import { getApiEndpoint } from "../utils/apiConfig";
 import "./LoginPage.css";
+import Location from "./Location/Location";
 
 const { Title, Text } = Typography;
 
@@ -241,6 +242,7 @@ function LoginPage({ setUsername, setLoginStatus, handleSubscribe, setRole }) {
         >
           Dev Mode (Dummy Login)
         </Button> */}
+      
       </div>
     </div>
   );

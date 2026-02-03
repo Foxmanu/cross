@@ -58,7 +58,7 @@ function HomePage({
 
 
   useEffect(() => {
-    gates(setGateOptions, dateRange, setActiveLearningOption, activeLearningOption, setUsername, setLoginStatus, setStatus);
+    gates(setGateOptions, dateRange, setActiveLearningOption, activeLearningOption,  setLoginStatus, setStatus);
     console.log("Gate Options:", gateOptions);
 
   }, []);
@@ -161,7 +161,7 @@ function HomePage({
               data={data}
               loading={loading}
               onRefresh={() =>
-                fetchFromBackend(dateRange, activeLearningOption)
+                  fetchFromBackend(dateRange, activeLearningOption)
               }
             />
           </div>

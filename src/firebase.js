@@ -22,7 +22,7 @@ export const messaging = getMessaging(app);
 onMessage(messaging, (payload) => {
   if (document.visibilityState !== "visible" || !document.hasFocus()) {
     console.log("Foreground message received: ", payload);
-    console.log("App not visible or not focused, skipping toast notification.");
+  
     return;
   }
   const notificationTitle = payload.notification?.title || payload.data?.title;

@@ -34,27 +34,27 @@ const Data = ({ data, loading, onRefresh, onOptionChange }) => { // <-- Add load
   }
   const chartData = data.map((day) => {
     
-    let totalMinutes = 0;
+    let totalSeconds = 0;
 
     day.records?.forEach((record) => {
       if (record.entry && record.exit) {
         const entry = dayjs(`2025-01-01T${record.entry}`);
         const exit = dayjs(`2025-01-01T${record.exit}`);
-        const diff = exit.diff(entry, "minute");
+        const diff = exit.diff(entry, "second");
         if (!isNaN(diff) && diff >= 0) {
-          totalMinutes += diff;
+          totalSeconds += diff;
         }
       }
     });
 
     return {
       date: dayjs(day.date).format("DD MMM"),
-      duration: totalMinutes,
+      duration: totalSeconds,
     };
   });
 
   let totalLogins = 0;
-  let totalMinutes = 0;
+  let totalSeconds = 0;
 
   data.forEach((day) => {
     day.records?.forEach((record) => {
@@ -64,21 +64,22 @@ const Data = ({ data, loading, onRefresh, onOptionChange }) => { // <-- Add load
         if (record.exit) {
           const entry = dayjs(`2025-01-01T${record.entry}`);
           const exit = dayjs(`2025-01-01T${record.exit}`);
-          const diff = exit.diff(entry, "minute");
+          const diff = exit.diff(entry, "second");
 
           if (!isNaN(diff) && diff >= 0) {
-            totalMinutes += diff;
+            totalSeconds += diff;
           }
         }
       }
     });
   });
 
-  const totalHours = Math.floor(totalMinutes / 60) || 0;
+  const totalHours = Math.floor(totalSeconds / 3600) || 0;
+  const remainingMinutes = Math.floor((totalSeconds % 3600) / 60) || 0;
+  const remainingSeconds = totalSeconds % 60 || 0;
 
-  const remainingMinutes = totalMinutes % 60 || 0;
 
-  const totalDurationStr = `${totalHours}h ${remainingMinutes}m`;
+  const totalDurationStr = `${totalHours}h ${remainingMinutes}m ${remainingSeconds}s`;
 
   return (
     <div className="container1">
@@ -153,7 +154,7 @@ const Data = ({ data, loading, onRefresh, onOptionChange }) => { // <-- Add load
                               <span className="daily-total-duration">
                                 Total:{" "}
                                 {(() => {
-                                  let dayMinutes = 0;
+                                  let daySeconds = 0;
                                   day.records.forEach((record) => {
                                     if (record.entry && record.exit) {
                                       const entry = dayjs(
@@ -162,16 +163,18 @@ const Data = ({ data, loading, onRefresh, onOptionChange }) => { // <-- Add load
                                       const exit = dayjs(
                                         `2025-01-01T${record.exit}`
                                       );
-                                      const diff = exit.diff(entry, "minute");
+                                      const diff = exit.diff(entry, "second");
                                       if (!isNaN(diff) && diff >= 0) {
-                                        dayMinutes += diff;
+                                        daySeconds += diff;
                                       }
                                     }
                                   });
 
-                                  const dayHours = Math.floor(dayMinutes / 60);
-                                  const dayRemainingMinutes = dayMinutes % 60;
-                                  return `${dayHours}h ${dayRemainingMinutes}m`;
+                                  const dayHours = Math.floor(daySeconds / 3600);
+                                  const dayRemainingMinutes = Math.floor((daySeconds % 3600) / 60);
+                                  const dayRemainingSeconds = daySeconds % 60;
+                                  
+                                  return `${dayHours}h ${dayRemainingMinutes}m ${dayRemainingSeconds}s`;
                                 })()}
                               </span>
                             ))}
@@ -194,20 +197,21 @@ const Data = ({ data, loading, onRefresh, onOptionChange }) => { // <-- Add load
                                 const exitTime = dayjs(
                                   `2025-01-01T${record.exit}`
                                 );
-                                const recordDiffMinutes = exitTime.diff(
+                                const recordDiffSeconds = exitTime.diff(
                                   entryTime,
-                                  "minute"
+                                  "second"
                                 );
 
                                 if (
-                                  !isNaN(recordDiffMinutes) &&
-                                  recordDiffMinutes >= 0
+                                  !isNaN(recordDiffSeconds) &&
+                                  recordDiffSeconds >= 0
                                 ) {
                                   const recordHours = Math.floor(
-                                    recordDiffMinutes / 60
+                                    recordDiffSeconds / 3600
                                   );
-                                  const recordMinutes = recordDiffMinutes % 60;
-                                  recordDurationStr = `${recordHours}h ${recordMinutes}m`;
+                                  const recordMinutes = Math.floor((recordDiffSeconds % 3600) / 60);
+                                  const recordSeconds = recordDiffSeconds % 60;
+                                  recordDurationStr = `${recordHours}h ${recordMinutes}m ${recordSeconds}s`;
                                 } else {
                                   recordDurationStr = "-";
                                 }

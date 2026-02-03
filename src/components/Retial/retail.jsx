@@ -84,12 +84,12 @@ function retail({
         setAnalyticsData(null);
       }
     } catch (error) {
-      if (error.response.status === 401 && error.response.status === 403 && refreshToken) {
+      if (error.response.status === 401|| error.response.status === 403 && refreshToken) {
         try {
           const refreshResponse = await axios.post(
 
             getApiEndpoint("/api/token/refresh"),
-            { username, refreshToken }
+            {  refreshToken }
           );
 
           if (

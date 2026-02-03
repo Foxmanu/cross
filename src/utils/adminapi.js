@@ -71,11 +71,11 @@ export const membersData = async (department, team, start, end, gate, page, limi
       setTotalMembers(response.data.totalRegisteredPersons || 0); // <-- set total count from backend
     }
   } catch (err) {
-    if (err.response && err.response.status === 401 && refreshToken) {
+    if (err.response ||err.response.status === 401 || err.response.status === 403 || refreshToken) {
       try {
         const refreshResponse = await axios.post(
           getApiEndpoint("/api/token/refresh"),
-          { username, refreshToken }
+          {  refreshToken }
         );
 
         if (refreshResponse.status === 200 && refreshResponse.data.success) {
@@ -123,7 +123,7 @@ export const fetchDoor = async (setDoorMappings, setSelectedDoor) => {
       try {
         const refreshResponse = await axios.post(
           getApiEndpoint("/api/token/refresh"),
-          { username, refreshToken }
+          { refreshToken }
         );
 
         if (refreshResponse.status === 200 && refreshResponse.data.success) {
@@ -211,11 +211,11 @@ export const departmentTeam = async (setHierarchyData, setSelectedDept, setSelec
     }
     return { firstDept: null, firstTeam: null };
   } catch (err) {
-    if (err.response && err.response.status === 401 && refreshToken) {
+    if (err.response ||err.response.status === 401 || err.response.status === 403 || refreshToken) {
       try {
         const refreshResponse = await axios.post(
           getApiEndpoint("/api/token/refresh"),
-          { username, refreshToken }
+          {  refreshToken }
         );
 
         if (refreshResponse.status === 200 && refreshResponse.data.success) {
@@ -257,11 +257,11 @@ export const flag = async (setItems, setError, setLoading) => {
       setError("No data returned");
     }
   } catch (err) {
-    if (err.response && err.response.status === 401 && refreshToken) {
+    if (err.response ||err.response.status === 401 || err.response.status === 403 || refreshToken) {
       try {
         const refreshResponse = await axios.post(
           getApiEndpoint("/api/token/refresh"),
-          { username, refreshToken }
+          {  refreshToken }
         );
 
         if (refreshResponse.status === 200 && refreshResponse.data.success) {
@@ -302,11 +302,11 @@ export const unAiuthorize = async (setData, setLoading, startDate, endDate) => {
     });
     setData(extractUnauthorized(resp.data));
   } catch (err) {
-    if (err.response && err.response.status === 401 && refreshToken) {
+    if (err.response|| err.response.status === 401 || err.response.status === 403 || refreshToken) {
       try {
         const refreshResponse = await axios.post(
           getApiEndpoint("/api/token/refresh"),
-          { username, refreshToken }
+          { refreshToken }
         );
 
         if (refreshResponse.status === 200 && refreshResponse.data.success) {
@@ -356,11 +356,11 @@ export const toggleNotification = async (systemId, enable, setError, setLoading,
       setError("Failed to update notification setting");
     }
   } catch (err) {
-    if (err.response && err.response.status === 401 && refreshToken) {
+    if (err.response || err.response.status === 401 || err.response.status === 403 || refreshToken) {
       try {
         const refreshResponse = await axios.post(
           getApiEndpoint("/api/token/refresh"),
-          { username, refreshToken }
+          { refreshToken }
         );
 
         if (refreshResponse.status === 200 && refreshResponse.data.success) {

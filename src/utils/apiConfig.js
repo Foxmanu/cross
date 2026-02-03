@@ -13,6 +13,31 @@ export const getApiEndpoint = (path) => {
 };
 
 
+
+
+const refreshTokenPoint = async () => {
+  const refreshToken = localStorage.getItem("refreshToken");
+  const refreshResponse = await axios.post(
+
+          getApiEndpoint("/api/token/refresh"),
+          { refreshToken }
+        );
+
+        if (
+          refreshResponse.status === 200 &&
+          refreshResponse.data.accessToken
+        ) {
+          localStorage.setItem(
+            "accessToken",
+            refreshResponse.data.accessToken
+          );
+        } else {
+          throw new Error(
+            "Refresh token invalid or missing access token in response."
+          );
+        }
+}
+
 // Robust logout logic
 export const Logout = async (username, setUsername, setLoginStatus, setStatus) => {
 
@@ -79,12 +104,12 @@ export const userDate = async (option, dates, setLoading, setData) => {
     }
     setLoading(false);
   } catch (error) {
-    if (error.response.status === 401 && error.response.status === 403 && refreshToken) {
+    if (error.response.status === 401 || error.response.status === 403 && refreshToken) {
       try {
         const refreshResponse = await axios.post(
 
           getApiEndpoint("/api/token/refresh"),
-          { username, refreshToken }
+          { refreshToken }
         );
 
         if (
@@ -129,7 +154,7 @@ export const userDate = async (option, dates, setLoading, setData) => {
 }
 
 // Fetch gate options from backend and set state
-export const gates = async (setGateOptions, setActiveLearningOption, activeLearningOption, setUsername, setLoginStatus, setStatus) => {
+export const gates = async (setGateOptions, setActiveLearningOption, activeLearningOption,) => {
 
   const accessToken = localStorage.getItem("accessToken");
   const refreshToken = localStorage.getItem("refreshToken");
@@ -175,12 +200,14 @@ export const gates = async (setGateOptions, setActiveLearningOption, activeLearn
       setGateOptions([]);
     }
   } catch (err) {
-    if (err.response.status === 401 && refreshToken)
+    if (err.response.status === 401|| err.response.status === 403|| refreshToken)
+  
       try {
+    console.log("Refreshing token...");
         const refreshResponse = await axios.post(
 
           getApiEndpoint("/api/token/refresh"),
-          { username, refreshToken }
+          { refreshToken }
         );
 
         if (
@@ -191,7 +218,7 @@ export const gates = async (setGateOptions, setActiveLearningOption, activeLearn
             "accessToken",
             refreshResponse.data.accessToken
           );
-          return gates(setGateOptions, setActiveLearningOption, activeLearningOption, setUsername, setLoginStatus, setStatus); // Retry with new token
+          return gates(setGateOptions, setActiveLearningOption, activeLearningOption,  ); // Retry with new token
         } else {
           throw new Error(
             "Refresh token invalid or missing access token in response."
@@ -199,9 +226,9 @@ export const gates = async (setGateOptions, setActiveLearningOption, activeLearn
         }
       } catch (refreshError) {
         alert("Session expired. Please login again.");
-        setUsername(null);
-        setLoginStatus(false);
-        setStatus("Enable Push Notifications");
+        // setUsername(null);
+        // setLoginStatus(false);
+        // setStatus("Enable Push Notifications");
         localStorage.removeItem("loginStatus");
         localStorage.removeItem("accessToken");
         localStorage.removeItem("refreshToken");
